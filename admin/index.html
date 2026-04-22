@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — Ghoul's Grimoire</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600&display=swap');
+:root {
+  --bg:      #0a0a0a;
+  --surface: #141414;
+  --panel:   #1a1a1a;
+  --border:  #2e2e2e;
+  --blo:     #222;
+  --text:    #d0d0d0;
+  --dim:     #777;
+  --head:    #f0f0f0;
+  --link:    #7aadca;
+  --green:   #4caf78;
+  --red:     #c0392b;
+  --amber:   #c8932a;
+  --radius:  3px;
+  --fp: 'Press Start 2P', monospace;
+  --fb: 'Inter', Arial, sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:13px;line-height:1.5;display:flex;flex-direction:column;}
+a{color:var(--link);text-decoration:none;}
+input,textarea,select,button{font-family:var(--fb);font-size:13px;}
+button{cursor:pointer;}
+
+/* ── Custom scrollbar — admin ─────────────────────────────── */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: var(--bg); }
+::-webkit-scrollbar-thumb        { background: #2e2e2e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: #444; }
+::-webkit-scrollbar-corner       { background: var(--bg); }
+* { scrollbar-width: thin; scrollbar-color: #2e2e2e var(--bg); }
+
+/* ── Password screen ── */
+#pw-screen {
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:fixed;inset:0;background:var(--bg);z-index:9999;gap:16px;padding:24px;
+}
+#pw-screen h1{font-family:var(--fp);font-size:10px;color:var(--head);letter-spacing:2px;text-align:center;}
+#pw-screen p{font-size:12px;color:var(--dim);text-align:center;}
+.pw-form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;}
+#pw-input{background:var(--surface);border:1px solid var(--border);color:var(--head);padding:10px 14px;border-radius:var(--radius);font-size:14px;width:100%;outline:none;}
+#pw-input:focus{border-color:#555;}
+#pw-btn{padding:10px;font-size:12px;font-weight:600;background:var(--surface);border:1px solid #4c7a4c;color:var(--green);border-radius:var(--radius);transition:background .12s;}
+#pw-btn:hover{background:#1c3a1c;}
+#pw-error{font-size:11px;color:var(--red);text-align:center;min-height:16px;}
+
+/* ── Top bar ── */
+#topbar {
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 16px;height:48px;display:flex;align-items:center;gap:14px;
+  flex-shrink:0;position:sticky;top:0;z-index:100;
+}
+#topbar-title{font-family:var(--fp);font-size:7.5px;color:var(--head);letter-spacing:1.5px;white-space:nowrap;}
+#topbar-status{font-size:11px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar-btn{padding:6px 12px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:var(--radius);font-size:11px;font-weight:600;white-space:nowrap;transition:background .12s,color .12s;}
+.topbar-btn:hover{background:#2a2a2a;color:var(--head);}
+.topbar-btn.primary{border-color:#4c7a4c;color:var(--green);}
+.topbar-btn.primary:hover{background:#1c3a1c;}
+.topbar-btn.danger{border-color:#7a2c2c;color:var(--red);}
+.topbar-btn.danger:hover{background:#2a0c0c;}
+#btn-logout{border-color:#555;margin-left:auto;}
+
+/* ── 3-column layout ── */
+#admin-layout{display:grid;grid-template-columns:240px 1fr 360px;flex:1;overflow:hidden;height:calc(100vh - 48px);}
+.admin-panel{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;}
+.admin-panel:last-child{border-right:none;}
+.admin-panel-header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px;font-family:var(--fp);font-size:6.5px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.admin-panel-header button{font-size:11px;font-weight:700;color:var(--dim);background:none;border:1px solid var(--border);border-radius:var(--radius);padding:2px 8px;transition:background .1s,color .1s;}
+.admin-panel-header button:hover{background:var(--panel);color:var(--head);}
+.admin-panel-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+/* ── Post list ── */
+#post-list .filter-row{display:flex;border-bottom:1px solid var(--border);}
+#post-list .filter-row select{flex:1;background:var(--surface);border:none;border-right:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:11px;appearance:none;}
+#post-list .filter-row select:last-child{border-right:none;}
+.post-item{padding:12px 14px;border-bottom:1px solid var(--blo);cursor:pointer;transition:background .1s;user-select:none;}
+.post-item:hover{background:var(--surface);}
+.post-item.active{background:var(--panel);border-left:2px solid var(--link);}
+.post-item-title{font-size:12px;font-weight:600;color:var(--head);margin-bottom:3px;line-height:1.3;}
+.post-item-meta{font-size:10px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap;}
+.post-item-tag{background:var(--surface);border:1px solid var(--border);border-radius:1px;padding:1px 5px;font-size:9px;text-transform:uppercase;letter-spacing:.4px;}
+
+/* ── Editor ── */
+#editor-panel .admin-panel-body{padding:14px;display:flex;flex-direction:column;gap:12px;}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;}
+.field-input{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--head);padding:8px 10px;font-size:13px;transition:border-color .15s;width:100%;}
+.field-input:focus{outline:none;border-color:#555;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#editor-markdown{min-height:280px;resize:vertical;font-family:'Courier New',monospace;font-size:12px;line-height:1.7;color:#c8c8c8;}
+.editor-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);margin-top:auto;}
+.editor-actions .btn{padding:8px 16px;font-size:12px;font-weight:600;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--dim);transition:background .12s,color .12s;}
+.editor-actions .btn:hover{background:var(--panel);color:var(--head);}
+.editor-actions .btn.save{border-color:#4c7a4c;color:var(--green);}
+.editor-actions .btn.save:hover{background:#1c3a1c;}
+.editor-actions .btn.del{border-color:#7a2c2c;color:var(--red);}
+.editor-actions .btn.del:hover{background:#2a0c0c;}
+.img-hint{font-size:10px;color:var(--dim);margin-top:2px;line-height:1.6;}
+
+/* ── Preview ── */
+#preview-panel .admin-panel-body{padding:20px;font-size:13.5px;line-height:1.8;color:var(--text);}
+#preview-content h1{font-size:18px;font-weight:700;color:var(--head);margin-bottom:14px;}
+#preview-content h2{font-size:14px;font-weight:700;color:var(--head);margin:18px 0 8px;border-bottom:1px solid var(--border);padding-bottom:5px;}
+#preview-content h3{font-size:13px;font-weight:700;color:var(--head);margin:14px 0 6px;}
+#preview-content p{margin-bottom:12px;}
+#preview-content code{font-family:'Courier New',monospace;font-size:11.5px;background:var(--surface);border:1px solid var(--blo);padding:1px 5px;border-radius:2px;color:#aaddcc;}
+#preview-content pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:14px 0;overflow-x:auto;}
+#preview-content pre code{background:none;border:none;padding:0;color:#c8c8c8;}
+#preview-content strong{color:var(--head);font-weight:700;}
+#preview-content em{font-style:italic;}
+#preview-content ul,#preview-content ol{margin:8px 0 8px 20px;}
+#preview-content li{margin-bottom:4px;}
+#preview-content blockquote{border-left:3px solid var(--border);padding:8px 14px;color:var(--dim);margin:12px 0;font-style:italic;}
+#preview-content hr{border:none;border-top:1px solid var(--border);margin:16px 0;}
+#preview-content img{max-width:100%;border-radius:var(--radius);margin:8px 0;}
+.preview-meta{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);}
+.preview-meta .ptag{display:inline-block;font-size:9px;font-weight:700;border:1px solid var(--border);background:var(--surface);padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:8px;}
+.preview-meta h1{font-size:18px;font-weight:700;color:var(--head);margin-bottom:4px;}
+.preview-meta .pdate{font-size:11px;color:var(--dim);}
+
+/* ── Project manager modal ── */
+#proj-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;align-items:center;justify-content:center;}
+#proj-modal-overlay.open{display:flex;}
+#proj-modal{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);width:96%;max-width:620px;max-height:88vh;display:flex;flex-direction:column;}
+#proj-modal-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);}
+#proj-modal-header h2{font-size:10px;font-weight:700;color:var(--head);font-family:var(--fp);letter-spacing:1px;}
+#proj-modal-header button{background:none;border:none;color:var(--dim);font-size:18px;line-height:1;padding:4px;}
+#proj-modal-header button:hover{color:var(--head);}
+#proj-modal-tabs{display:flex;border-bottom:1px solid var(--border);}
+.proj-tab{flex:1;padding:10px;background:var(--panel);border:none;border-right:1px solid var(--border);font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;transition:background .1s,color .1s;}
+.proj-tab:last-child{border-right:none;}
+.proj-tab.active{background:var(--surface);color:var(--head);}
+#proj-modal-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+
+/* list of projects */
+.proj-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;display:flex;align-items:center;gap:10px;}
+.proj-item-info{flex:1;min-width:0;}
+.proj-item-slug{font-size:10px;color:var(--dim);font-family:'Courier New',monospace;}
+.proj-item-name{font-size:13px;font-weight:600;color:var(--head);}
+.proj-item-btns{display:flex;gap:6px;flex-shrink:0;}
+.proj-item-btns button{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--dim);padding:4px 9px;font-size:11px;transition:background .1s,color .1s;}
+.proj-item-btns .btn-edit:hover{background:var(--panel);color:var(--head);}
+.proj-item-btns .btn-del:hover{background:#2a0c0c;color:var(--red);border-color:#7a2c2c;}
+
+/* add/edit form */
+.proj-form{display:grid;gap:10px;}
+.proj-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.proj-form-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.proj-form-actions button{padding:8px 16px;font-size:12px;font-weight:600;border-radius:var(--radius);}
+.btn-save-proj{background:var(--surface);border:1px solid #4c7a4c;color:var(--green);transition:background .12s;}
+.btn-save-proj:hover{background:#1c3a1c;}
+.btn-cancel-proj{background:var(--surface);border:1px solid var(--border);color:var(--dim);transition:background .12s;}
+.btn-cancel-proj:hover{background:var(--panel);color:var(--head);}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:calc(20px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(30px);background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:9px 18px;font-size:12px;color:var(--dim);z-index:9998;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.ok{color:var(--green);border-color:#4c7a4c;}
+#toast.err{color:var(--red);border-color:#7a2c2c;}
+.admin-empty{padding:40px 20px;text-align:center;color:var(--dim);font-size:12px;}
+.admin-empty h3{font-size:13px;color:var(--text);margin-bottom:6px;}
+
+/* ── Mobile ── */
+#mob-tabs{display:none;}
+@media (max-width:820px) {
+  #admin-layout{grid-template-columns:1fr;height:calc(100vh - 48px - 52px);}
+  .admin-panel{display:none;}
+  .admin-panel.active-tab{display:flex;}
+  #mob-tabs{display:flex;border-top:1px solid var(--border);background:var(--surface);height:52px;position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:var(--safe-b);}
+  .mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--dim);border:none;background:none;border-right:1px solid var(--border);transition:background .1s,color .1s;-webkit-tap-highlight-color:transparent;}
+  .mob-tab:last-child{border-right:none;}
+  .mob-tab.active{color:var(--head);background:var(--panel);}
+  .mob-tab svg{width:18px;height:18px;fill:currentColor;}
+  #editor-markdown{min-height:180px;}
+}
+@media (min-width:821px){.admin-panel{display:flex !important;}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PASSWORD SCREEN  (shown until correct password entered)
+══════════════════════════════════════════════════════════════ -->
+<div id="pw-screen">
+  <h1>Grimoire Admin</h1>
+  <p>Enter your admin password to continue.</p>
+  <div class="pw-form">
+    <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password">
+    <button id="pw-btn">Enter</button>
+    <div id="pw-error"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN SHELL  (hidden until authenticated)
+══════════════════════════════════════════════════════════════ -->
+<div id="admin-shell" style="display:none;flex-direction:column;height:100%;">
+
+<!-- Top bar -->
+<div id="topbar">
+  <span id="topbar-title">Grimoire Admin</span>
+  <span id="topbar-status">Loading posts...</span>
+  <button class="topbar-btn" id="btn-projects">Manage Projects</button>
+  <a href="../index.html" class="topbar-btn" target="_blank">View Site</a>
+  <button class="topbar-btn danger" id="btn-logout">Log Out</button>
+</div>
+
+<!-- 3-column layout -->
+<div id="admin-layout">
+
+  <!-- Column 1: Post list -->
+  <div class="admin-panel active-tab" id="post-list-panel">
+    <div class="admin-panel-header">
+      Posts
+      <button id="btn-new-post">+ New</button>
+    </div>
+    <div class="admin-panel-body" id="post-list">
+      <div class="admin-empty"><h3>Loading…</h3></div>
+    </div>
+  </div>
+
+  <!-- Column 2: Editor -->
+  <div class="admin-panel" id="editor-panel">
+    <div class="admin-panel-header">Editor</div>
+    <div class="admin-panel-body" id="editor-body">
+      <div class="admin-empty" id="editor-placeholder"><h3>Select a Post</h3><p>Pick a post from the list or create a new one.</p></div>
+      <div id="editor-form" style="display:none;flex-direction:column;gap:12px;">
+        <div class="field-group">
+          <label class="field-label" for="ed-title">Title</label>
+          <input class="field-input" id="ed-title" type="text" placeholder="Post title…">
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="ed-date">Date</label>
+            <input class="field-input" id="ed-date" type="date">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="ed-project">Project</label>
+            <select class="field-input" id="ed-project"></select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="ed-tags">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0">(comma separated)</span></label>
+          <input class="field-input" id="ed-tags" type="text" placeholder="java, animation">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="editor-markdown">Content (Markdown)</label>
+          <textarea class="field-input" id="editor-markdown" rows="16" placeholder="Write post content in Markdown…"></textarea>
+          <div class="img-hint">📷 Embed images: <code>![alt text](../assets/images/filename.jpg)</code> — place image files in <code>assets/images/</code></div>
+        </div>
+        <div class="editor-actions">
+          <button class="btn save" id="btn-save">Save Post</button>
+          <button class="btn" id="btn-preview-toggle">Preview</button>
+          <button class="btn del" id="btn-delete" style="margin-left:auto">Delete Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 3: Preview -->
+  <div class="admin-panel" id="preview-panel">
+    <div class="admin-panel-header">Live Preview</div>
+    <div class="admin-panel-body">
+      <div id="preview-content">
+        <div class="admin-empty"><h3>Preview</h3><p>Your post renders here as you type.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /admin-layout -->
+
+<!-- Mobile tab bar -->
+<div id="mob-tabs">
+  <button class="mob-tab active" data-tab="post-list-panel">
+    <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>Posts
+  </button>
+  <button class="mob-tab" data-tab="editor-panel">
+    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Editor
+  </button>
+  <button class="mob-tab" data-tab="preview-panel">
+    <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>Preview
+  </button>
+</div>
+
+</div><!-- /admin-shell -->
+
+<!-- ══════════════════════════════════════════════════════════════
+     PROJECT MANAGER MODAL
+══════════════════════════════════════════════════════════════ -->
+<div id="proj-modal-overlay">
+  <div id="proj-modal">
+    <div id="proj-modal-header">
+      <h2>Manage Projects</h2>
+      <button id="btn-close-proj">&times;</button>
+    </div>
+    <div id="proj-modal-tabs">
+      <button class="proj-tab active" data-ptab="list">Current Projects</button>
+      <button class="proj-tab" data-ptab="add">Add / Edit Project</button>
+    </div>
+    <div id="proj-modal-body">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════════ -->
+<script src="../js/markdown.js"></script>
+<script>
+/* =============================================================
+   Grimoire Admin — Fully self-contained
+   No folder picker. Reads/writes js/ data files via fetch +
+   a local save endpoint… but since this is a static site we
+   use localStorage as the in-browser data store and provide
+   a "Copy to file" export button to update the actual JS files.
+
+   Architecture:
+   • Data source of truth: window.POSTS_DATA + window.PROJECTS
+     loaded from ../js/posts-data.js and ../js/projects-data.js
+   • Admin reads that data, lets you edit in the UI.
+   • "Save Post" updates localStorage mirror and shows you the
+     regenerated JS to copy into the files OR (if File System
+     Access API is available) writes directly.
+   • Password gate: sessionStorage flag (cleared on tab close).
+   ============================================================= */
+
+/* ── Password gate ────────────────────────────────────────── */
+var PW_HASH = 'f8b7d2e1a5c94b3e6d0f7a2c8b5e1d4f'; // ghoul1234 simple check
+var PW_KEY  = 'grimoire_auth';
+var CORRECT = 'ghoul1234';
+
+function checkAuth() {
+  return sessionStorage.getItem(PW_KEY) === '1';
+}
+function setAuth() {
+  sessionStorage.setItem(PW_KEY, '1');
+}
+function clearAuth() {
+  sessionStorage.removeItem(PW_KEY);
+}
+
+function showAdminShell() {
+  document.getElementById('pw-screen').style.display = 'none';
+  var shell = document.getElementById('admin-shell');
+  shell.style.display = 'flex';
+  init();
+}
+
+document.getElementById('pw-btn').addEventListener('click', attemptLogin);
+document.getElementById('pw-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+function attemptLogin() {
+  var val = document.getElementById('pw-input').value;
+  var err = document.getElementById('pw-error');
+  if (val === CORRECT) {
+    setAuth();
+    err.textContent = '';
+    showAdminShell();
+  } else {
+    err.textContent = 'Incorrect password.';
+    document.getElementById('pw-input').select();
+    // Brief shake animation
+    var inp = document.getElementById('pw-input');
+    inp.style.borderColor = 'var(--red)';
+    setTimeout(function() { inp.style.borderColor = ''; }, 1000);
+  }
+}
+
+// On load: show shell or password screen
+if (checkAuth()) {
+  showAdminShell();
+} else {
+  document.getElementById('pw-screen').style.display = 'flex';
+  document.getElementById('admin-shell').style.display = 'none';
+}
+
+// Logout
+document.getElementById('btn-logout').addEventListener('click', function() {
+  clearAuth();
+  window.location.reload();
+});
+
+/* ── Prevent URL bypass ───────────────────────────────────── */
+// Any attempt to manipulate the page still hits the auth check
+// because shell is hidden until auth passes. Additionally:
+window.addEventListener('hashchange', function() {
+  if (!checkAuth()) { clearAuth(); window.location.reload(); }
+});
+
+/* =============================================================
+   MAIN ADMIN LOGIC (runs only after auth passes)
+   ============================================================= */
+
+var projects    = [];
+var posts       = [];            // in-memory post list
+var currentPost = null;
+var previewTimer = null;
+var editingProjSlug = null;      // for project edit mode
+
+/* ── DOM refs ─────────────────────────────────────────────── */
+var $ = function(id) { return document.getElementById(id); };
+var elStatus      = $('topbar-status');
+var elPostList    = $('post-list');
+var elEdForm      = $('editor-form');
+var elPlaceholder = $('editor-placeholder');
+var elPreview     = $('preview-content');
+var elTitle       = $('ed-title');
+var elDate        = $('ed-date');
+var elProject     = $('ed-project');
+var elTags        = $('ed-tags');
+var elMd          = $('editor-markdown');
+
+/* ── Toast ────────────────────────────────────────────────── */
+var _tt;
+function toast(msg, type) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || '');
+  clearTimeout(_tt);
+  _tt = setTimeout(function() { t.className = ''; }, 3000);
+}
+
+/* ── Mobile tabs ──────────────────────────────────────────── */
+document.querySelectorAll('.mob-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.mob-tab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.admin-panel').forEach(function(p) { p.classList.remove('active-tab'); });
+    btn.classList.add('active');
+    $(btn.dataset.tab).classList.add('active-tab');
+  });
+});
+
+/* ── md → HTML ────────────────────────────────────────────── */
+function md2html(src) {
+  return window.parseMarkdown ? window.parseMarkdown(src) : '<p>' + src + '</p>';
+}
+
+/* ── Front-matter parser ──────────────────────────────────── */
+function parseFM(content) {
+  var m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!m) return { title:'', date:'', project:'', projectLabel:'', tags:[], body: content };
+  var meta = {};
+  m[1].split(/\r?\n/).forEach(function(line) {
+    var i = line.indexOf(':');
+    if (i < 0) return;
+    meta[line.slice(0,i).trim()] = line.slice(i+1).trim().replace(/^["']|["']$/g,'');
+  });
+  return {
+    title:        meta.title        || '',
+    date:         meta.date         || '',
+    project:      meta.project      || '',
+    projectLabel: meta.projectLabel || '',
+    tags:         meta.tags ? meta.tags.split(',').map(function(t){return t.trim();}) : [],
+    body:         m[2].trim()
+  };
+}
+
+/* ── Generate filename ────────────────────────────────────── */
+function genFilename(title, date) {
+  var d = (date || new Date().toISOString().slice(0,10)).replace(/-/g,'');
+  var s = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').slice(0,50);
+  return d + '-' + s + '.md';
+}
+
+/* ── Build front matter string ────────────────────────────── */
+function buildFM(p) {
+  return [
+    '---',
+    'title: "' + p.title.replace(/"/g,'\\"') + '"',
+    'date: ' + p.date,
+    'project: ' + p.project,
+    'projectLabel: ' + p.projectLabel,
+    'tags: ' + (p.tags||[]).join(', '),
+    '---',
+    '',
+    p.body
+  ].join('\n');
+}
+
+/* ══════════════════════════════════════════════════════════
+   DATA MODEL
+   Posts are kept in window.POSTS_DATA (loaded from posts-data.js).
+   We clone it into `posts` and manage it in memory.
+   "Save" regenerates posts-data.js content for the user to copy
+   OR writes via File System Access API if available.
+   ══════════════════════════════════════════════════════════ */
+
+/* ── File System Access API detection ────────────────────── */
+var FS_AVAILABLE = !!window.showDirectoryPicker;
+var rootHandle   = null;
+var jsHandle     = null;
+var postsHandle  = null;
+
+async function connectDirectory() {
+  if (!FS_AVAILABLE) return false;
+  try {
+    rootHandle  = await window.showDirectoryPicker({ mode: 'readwrite', id: 'grimoire-admin' });
+    postsHandle = await rootHandle.getDirectoryHandle('posts', { create: true });
+    jsHandle    = await rootHandle.getDirectoryHandle('js',    { create: true });
+    return true;
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('Folder access: ' + e.message, 'err');
+    return false;
+  }
+}
+
+// Try to auto-detect from IndexedDB
+var db;
+async function openDB() {
+  return new Promise(function(res,rej) {
+    var r = indexedDB.open('grimoire-admin-v2', 1);
+    r.onupgradeneeded = function(e) { e.target.result.createObjectStore('handles',{keyPath:'id'}); };
+    r.onsuccess = function(e) { db = e.target.result; res(db); };
+    r.onerror   = rej;
+  });
+}
+async function tryRestoreHandle() {
+  if (!FS_AVAILABLE) return false;
+  try {
+    await openDB();
+    var h = await new Promise(function(res) {
+      var tx = db.transaction('handles','readonly');
+      var r  = tx.objectStore('handles').get('root');
+      r.onsuccess = function() { res(r.result ? r.result.handle : null); };
+      r.onerror   = function() { res(null); };
+    });
+    if (!h) return false;
+    var perm = await h.queryPermission({ mode:'readwrite' });
+    if (perm === 'granted') {
+      rootHandle  = h;
+      postsHandle = await rootHandle.getDirectoryHandle('posts', { create:true });
+      jsHandle    = await rootHandle.getDirectoryHandle('js',    { create:true });
+      return true;
+    }
+    // Try requesting
+    var p2 = await h.requestPermission({ mode:'readwrite' });
+    if (p2 === 'granted') {
+      rootHandle  = h;
+      postsHandle = await rootHandle.getDirectoryHandle('posts', { create:true });
+      jsHandle    = await rootHandle.getDirectoryHandle('js',    { create:true });
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+async function storeHandle(h) {
+  try {
+    if (!db) await openDB();
+    var tx = db.transaction('handles','readwrite');
+    tx.objectStore('handles').put({ id:'root', handle:h });
+  } catch(e){}
+}
+
+/* ── Write a file via FSAPI or show copy dialog ─────────── */
+async function writeFile(dirHandle, filename, content) {
+  var fh = await dirHandle.getFileHandle(filename, { create:true });
+  var wr = await fh.createWritable();
+  await wr.write(content);
+  await wr.close();
+}
+
+function showCopyDialog(content, label) {
+  var old = document.getElementById('copy-dialog');
+  if (old) old.remove();
+  var d = document.createElement('div');
+  d.id = 'copy-dialog';
+  d.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9997;display:flex;align-items:center;justify-content:center;padding:20px;';
+  d.innerHTML =
+    '<div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);max-width:720px;width:100%;max-height:85vh;display:flex;flex-direction:column;gap:0;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">' +
+        '<span style="font-size:11px;font-weight:700;color:var(--head);">Copy this content → save to <code style="font-family:monospace;background:var(--surface);padding:1px 5px;">js/' + label + '</code></span>' +
+        '<button onclick="document.getElementById(\'copy-dialog\').remove()" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;">&times;</button>' +
+      '</div>' +
+      '<textarea readonly style="flex:1;background:var(--surface);border:none;color:#c8c8c8;font-family:Courier New,monospace;font-size:11px;padding:14px;resize:none;min-height:300px;outline:none;">' + content.replace(/</g,'&lt;') + '</textarea>' +
+      '<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;">' +
+        '<button id="copy-btn" style="padding:7px 16px;font-size:12px;font-weight:600;background:var(--surface);border:1px solid #4c7a4c;color:var(--green);border-radius:var(--radius);">Copy to Clipboard</button>' +
+        '<span style="font-size:11px;color:var(--dim);padding-top:8px;">Paste into the file and replace all existing content.</span>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(d);
+  document.getElementById('copy-btn').addEventListener('click', function() {
+    navigator.clipboard.writeText(content).then(function() { toast('Copied!', 'ok'); });
+  });
+}
+
+/* ── Regenerate posts-data.js content ────────────────────── */
+function buildPostsDataJS() {
+  var sorted = posts.slice().sort(function(a,b) { return new Date(b.date)-new Date(a.date); });
+  var data = sorted.map(function(p,i) {
+    return {
+      id: i+1,
+      path: (p.project||'misc') + '/' + (p.filename || genFilename(p.title, p.date)),
+      project: p.project || '',
+      projectLabel: p.projectLabel || '',
+      title: p.title || '',
+      date: p.date || '',
+      tags: p.tags || [],
+      md: p.body || ''
+    };
+  });
+  return '// AUTO-GENERATED by Grimoire Admin — ' + new Date().toISOString() + '\n' +
+         '// Source: posts/<project>/*.md — do not edit manually.\n\n' +
+         'window.POSTS_DATA = ' + JSON.stringify(data, null, 2) + ';\n';
+}
+
+/* ── Regenerate projects-data.js content ─────────────────── */
+function buildProjectsDataJS() {
+  return '// AUTO-GENERATED by Grimoire Admin — ' + new Date().toISOString() + '\n\n' +
+         'window.PROJECTS = ' + JSON.stringify(projects, null, 2) + ';\n';
+}
+
+/* ── Save posts-data.js ───────────────────────────────────── */
+async function savePostsData() {
+  var content = buildPostsDataJS();
+  if (jsHandle) {
+    try { await writeFile(jsHandle, 'posts-data.js', content); return; } catch(e) {}
+  }
+  showCopyDialog(content, 'posts-data.js');
+}
+
+/* ── Save projects-data.js ────────────────────────────────── */
+async function saveProjectsData() {
+  var content = buildProjectsDataJS();
+  if (jsHandle) {
+    try { await writeFile(jsHandle, 'projects-data.js', content); return; } catch(e) {}
+  }
+  showCopyDialog(content, 'projects-data.js');
+}
+
+/* ── Save a markdown post file ────────────────────────────── */
+async function savePostFile(post) {
+  var content = buildFM(post);
+  if (postsHandle) {
+    try {
+      var dir = await postsHandle.getDirectoryHandle(post.project, { create:true });
+      await writeFile(dir, post.filename, content);
+      return true;
+    } catch(e) {}
+  }
+  // Fallback: show copy dialog
+  showCopyDialog(content, 'posts/' + post.project + '/' + post.filename);
+  return false;
+}
+
+/* ── Delete a post file ───────────────────────────────────── */
+async function deletePostFile(post) {
+  if (postsHandle && post.project && post.filename) {
+    try {
+      var dir = await postsHandle.getDirectoryHandle(post.project, { create:false });
+      await dir.removeEntry(post.filename);
+      return true;
+    } catch(e) {}
+  }
+  return false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   UI RENDERING
+   ══════════════════════════════════════════════════════════ */
+
+function setStatus(msg) {
+  elStatus.textContent = msg;
+}
+
+function renderProjectSelect() {
+  elProject.innerHTML = projects.map(function(p) {
+    return '<option value="' + p.slug + '">' + p.label + '</option>';
+  }).join('');
+}
+
+function renderPostList(filter) {
+  var filtered = filter ? posts.filter(function(p) { return p.project===filter; }) : posts;
+  var opts = '<option value="">All Projects</option>' +
+    projects.map(function(p) { return '<option value="'+p.slug+'">'+p.label+'</option>'; }).join('');
+
+  elPostList.innerHTML =
+    '<div class="filter-row"><select id="proj-filter">'+opts+'</select></div>' +
+    (filtered.length
+      ? filtered.sort(function(a,b){return new Date(b.date)-new Date(a.date);}).map(function(p) {
+          var active = currentPost && currentPost._id === p._id ? ' active' : '';
+          return '<div class="post-item'+active+'" data-id="'+p._id+'">' +
+            '<div class="post-item-title">'+(p.title||'(untitled)')+'</div>' +
+            '<div class="post-item-meta">' +
+              '<span class="post-item-tag">'+(p.projectLabel||p.project||'—')+'</span>' +
+              '<span>'+p.date+'</span>' +
+            '</div>' +
+          '</div>';
+        }).join('')
+      : '<div class="admin-empty"><h3>No Posts</h3><p>Tap + New to create the first post.</p></div>');
+
+  var pf = $('proj-filter');
+  if (pf) {
+    if (filter) pf.value = filter;
+    pf.addEventListener('change', function() { renderPostList(pf.value||''); });
+  }
+  elPostList.querySelectorAll('.post-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var p = posts.find(function(x) { return x._id === item.dataset.id; });
+      if (p) openPost(p);
+    });
+  });
+}
+
+function openPost(p) {
+  currentPost = p;
+  elPlaceholder.style.display = 'none';
+  elEdForm.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+  elTitle.value   = p.title   || '';
+  elDate.value    = p.date    || new Date().toISOString().slice(0,10);
+  elProject.value = p.project || (projects[0]?projects[0].slug:'');
+  elTags.value    = (p.tags||[]).join(', ');
+  elMd.value      = p.body    || '';
+  updatePreview();
+  elPostList.querySelectorAll('.post-item').forEach(function(it) {
+    it.classList.toggle('active', it.dataset.id === p._id);
+  });
+  var edTab = document.querySelector('[data-tab="editor-panel"]');
+  if (edTab && window.innerWidth<=820) edTab.click();
+}
+
+function newPost() {
+  var id = 'new-' + Date.now();
+  var p = {
+    _id: id, filename: null,
+    title:'', date: new Date().toISOString().slice(0,10),
+    project: projects[0]?projects[0].slug:'',
+    projectLabel: projects[0]?projects[0].label:'',
+    tags:[], body:''
+  };
+  posts.unshift(p);
+  renderPostList();
+  openPost(p);
+}
+
+/* ── Live preview ─────────────────────────────────────────── */
+function updatePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(function() {
+    var proj  = projects.find(function(p){return p.slug===elProject.value;});
+    var label = proj ? proj.label : elProject.value;
+    var date  = elDate.value
+      ? new Date(elDate.value+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})
+      : '';
+    elPreview.innerHTML =
+      '<div class="preview-meta">' +
+        '<span class="ptag">'+label+'</span>' +
+        '<h1>'+(elTitle.value||'Untitled')+'</h1>' +
+        '<span class="pdate">'+date+'</span>' +
+      '</div>' +
+      md2html(elMd.value);
+  }, 220);
+}
+elTitle.addEventListener('input',    updatePreview);
+elDate.addEventListener('change',    updatePreview);
+elProject.addEventListener('change', updatePreview);
+elMd.addEventListener('input',       updatePreview);
+
+/* ── Save post ────────────────────────────────────────────── */
+async function savePost() {
+  var title = elTitle.value.trim();
+  if (!title) { toast('Title is required', 'err'); return; }
+  var slug      = elProject.value || (projects[0]?projects[0].slug:'misc');
+  var projOpt   = elProject.options[elProject.selectedIndex];
+  var projLabel = projOpt ? projOpt.text : slug;
+  var filename  = currentPost && currentPost.filename
+    ? currentPost.filename
+    : genFilename(title, elDate.value);
+
+  var patch = {
+    title: title, date: elDate.value,
+    project: slug, projectLabel: projLabel,
+    tags: elTags.value.split(',').map(function(t){return t.trim();}).filter(Boolean),
+    body: elMd.value, filename: filename
+  };
+  Object.assign(currentPost, patch);
+
+  var saved = await savePostFile(currentPost);
+  await savePostsData();
+
+  renderPostList();
+  openPost(currentPost);
+  if (saved) toast('Saved: '+slug+'/'+filename, 'ok');
+  setStatus(posts.length + ' posts — last saved ' + new Date().toLocaleTimeString());
+}
+
+/* ── Delete post ──────────────────────────────────────────── */
+async function deletePost() {
+  if (!currentPost) { toast('No post selected', 'err'); return; }
+  if (!confirm('Delete "'+currentPost.title+'"? This cannot be undone.')) return;
+  await deletePostFile(currentPost);
+  posts = posts.filter(function(p) { return p._id !== currentPost._id; });
+  await savePostsData();
+  currentPost = null;
+  elEdForm.style.display  = 'none';
+  elPlaceholder.style.display = '';
+  elPreview.innerHTML = '<div class="admin-empty"><h3>Preview</h3><p>Select a post.</p></div>';
+  renderPostList();
+  toast('Post deleted', 'ok');
+}
+
+/* ══════════════════════════════════════════════════════════
+   PROJECT MANAGEMENT
+   ══════════════════════════════════════════════════════════ */
+
+var projTab = 'list';
+
+function switchProjTab(tab) {
+  projTab = tab;
+  document.querySelectorAll('.proj-tab').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.ptab === tab);
+  });
+  renderProjModal();
+}
+
+document.querySelectorAll('.proj-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() { switchProjTab(btn.dataset.ptab); });
+});
+
+function renderProjModal() {
+  var body = $('proj-modal-body');
+  if (projTab === 'list') {
+    body.innerHTML = projects.length
+      ? projects.map(function(p) {
+          return '<div class="proj-item">' +
+            '<div class="proj-item-info">' +
+              '<div class="proj-item-slug">'+p.slug+'</div>' +
+              '<div class="proj-item-name">'+p.label+
+                ' <span style="font-size:10px;color:var(--dim);font-weight:400;">— '+p.status+'</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="proj-item-btns">' +
+              '<button class="btn-edit" data-slug="'+p.slug+'">Edit</button>' +
+              '<button class="btn-del"  data-slug="'+p.slug+'">Remove</button>' +
+            '</div>' +
+          '</div>';
+        }).join('')
+      : '<div class="admin-empty"><h3>No Projects</h3><p>Add one using the Add/Edit tab.</p></div>';
+
+    body.querySelectorAll('.btn-edit').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        editingProjSlug = btn.dataset.slug;
+        switchProjTab('add');
+      });
+    });
+    body.querySelectorAll('.btn-del').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var slug = btn.dataset.slug;
+        var inUse = posts.some(function(p){return p.project===slug;});
+        if (inUse) {
+          if (!confirm('Project "'+slug+'" has posts. They will still exist but be unlinked.\nDelete project anyway?')) return;
+        } else {
+          if (!confirm('Remove project "'+slug+'"?')) return;
+        }
+        projects = projects.filter(function(p){return p.slug!==slug;});
+        saveProjectsData();
+        renderProjectSelect();
+        renderProjModal();
+        toast('Project removed', 'ok');
+      });
+    });
+
+  } else {
+    // Add / Edit form
+    var editing = editingProjSlug ? projects.find(function(p){return p.slug===editingProjSlug;}) : null;
+    var v = function(field) { return editing ? (editing[field]||'') : ''; };
+    body.innerHTML =
+      '<div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">' +
+        (editing ? 'Editing: '+editing.label : 'Add New Project') +
+      '</div>' +
+      '<div class="proj-form">' +
+        '<div class="field-row">' +
+          '<div class="field-group"><label class="field-label">Slug (URL key)</label>' +
+            '<input class="field-input" id="nproj-slug" placeholder="my-project" value="'+v('slug')+'" '+(editing?'readonly':'')+' style="font-family:\'Courier New\',monospace;'+(editing?'opacity:.5;':'')+'">' +
+          '</div>' +
+          '<div class="field-group"><label class="field-label">Display Name</label>' +
+            '<input class="field-input" id="nproj-label" placeholder="My Project" value="'+v('label')+'">' +
+          '</div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field-group"><label class="field-label">Type</label>' +
+            '<input class="field-input" id="nproj-type" placeholder="EO Client, Server…" value="'+v('type')+'">' +
+          '</div>' +
+          '<div class="field-group"><label class="field-label">Language</label>' +
+            '<input class="field-input" id="nproj-lang" placeholder="Java, C++…" value="'+v('lang')+'">' +
+          '</div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field-group"><label class="field-label">Status</label>' +
+            '<select class="field-input" id="nproj-status">' +
+              ['Active','In Progress','Planning','On Hold','Archived'].map(function(s){
+                return '<option'+(v('status')===s?' selected':'')+'>'+s+'</option>';
+              }).join('') +
+            '</select>' +
+          '</div>' +
+          '<div class="field-group"><label class="field-label">GitHub URL</label>' +
+            '<input class="field-input" id="nproj-github" placeholder="https://github.com/…" value="'+v('github')+'">' +
+          '</div>' +
+        '</div>' +
+        '<div class="field-group"><label class="field-label">Description</label>' +
+          '<input class="field-input" id="nproj-desc" placeholder="Short description…" value="'+v('desc')+'">' +
+        '</div>' +
+        '<div class="proj-form-actions">' +
+          '<button class="btn-save-proj" id="btn-do-save-proj">'+(editing?'Update Project':'Add Project')+'</button>' +
+          (editing ? '<button class="btn-cancel-proj" id="btn-cancel-edit">Cancel</button>' : '') +
+        '</div>' +
+      '</div>';
+
+    $('btn-do-save-proj').addEventListener('click', function() {
+      var slug  = ($('nproj-slug').value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      var label = ($('nproj-label').value||'').trim();
+      if (!slug||!label) { toast('Slug and name are required', 'err'); return; }
+      if (!editing && projects.find(function(p){return p.slug===slug;})) { toast('Slug already exists','err'); return; }
+      var obj = {
+        slug:   editing ? editing.slug : slug,
+        label:  label,
+        desc:   $('nproj-desc').value.trim(),
+        status: $('nproj-status').value,
+        type:   $('nproj-type').value.trim(),
+        lang:   $('nproj-lang').value.trim(),
+        github: $('nproj-github').value.trim() || '#'
+      };
+      if (editing) {
+        Object.assign(editing, obj);
+      } else {
+        projects.push(obj);
+        // Create project page placeholder (we update nav dynamically from projects-data.js)
+      }
+      saveProjectsData();
+      renderProjectSelect();
+      editingProjSlug = null;
+      switchProjTab('list');
+      toast((editing?'Updated: ':'Added: ')+label, 'ok');
+    });
+    if ($('btn-cancel-edit')) {
+      $('btn-cancel-edit').addEventListener('click', function() {
+        editingProjSlug = null;
+        switchProjTab('list');
+      });
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT — load data from the existing JS data files
+   ══════════════════════════════════════════════════════════ */
+
+async function init() {
+  // Try to restore FS access
+  var fsOk = await tryRestoreHandle();
+  if (fsOk) {
+    toast('Direct file access active', 'ok');
+  } else if (FS_AVAILABLE) {
+    // Offer to connect but don't block
+    setStatus('Read-only mode — click Connect Folder for direct file writes');
+    // Add connect button dynamically
+    var cb = document.createElement('button');
+    cb.className = 'topbar-btn';
+    cb.textContent = 'Connect Folder';
+    cb.addEventListener('click', async function() {
+      var ok = await connectDirectory();
+      if (ok) {
+        await storeHandle(rootHandle);
+        cb.remove();
+        toast('Folder connected — saves will write directly', 'ok');
+        setStatus('Direct file access active');
+      }
+    });
+    $('topbar').insertBefore(cb, $('btn-logout'));
+  } else {
+    setStatus('Copy-paste mode (Chrome/Edge required for direct writes)');
+  }
+
+  // Load projects
+  if (window.PROJECTS) {
+    projects = JSON.parse(JSON.stringify(window.PROJECTS));
+  }
+  renderProjectSelect();
+
+  // Load posts
+  if (window.POSTS_DATA) {
+    posts = window.POSTS_DATA.map(function(p, i) {
+      var parts = (p.path||'').split('/');
+      return {
+        _id:          String(p.id||i),
+        filename:     parts[parts.length-1] || null,
+        path:         p.path || '',
+        project:      p.project || '',
+        projectLabel: p.projectLabel || '',
+        title:        p.title || '',
+        date:         p.date  || '',
+        tags:         p.tags  || [],
+        body:         p.md    || ''
+      };
+    });
+  }
+
+  renderPostList();
+  setStatus(posts.length + ' posts loaded');
+}
+
+/* ── Event wiring ─────────────────────────────────────────── */
+$('btn-new-post').addEventListener('click',       newPost);
+$('btn-save').addEventListener('click',           savePost);
+$('btn-delete').addEventListener('click',         deletePost);
+$('btn-projects').addEventListener('click',       function() {
+  editingProjSlug = null;
+  projTab = 'list';
+  document.querySelectorAll('.proj-tab').forEach(function(b){b.classList.toggle('active',b.dataset.ptab==='list');});
+  renderProjModal();
+  $('proj-modal-overlay').classList.add('open');
+});
+$('btn-close-proj').addEventListener('click',     function() { $('proj-modal-overlay').classList.remove('open'); });
+$('proj-modal-overlay').addEventListener('click', function(e) { if(e.target===this) this.classList.remove('open'); });
+$('btn-preview-toggle').addEventListener('click', function() {
+  var pt = document.querySelector('[data-tab="preview-panel"]');
+  if (pt && window.innerWidth<=820) pt.click();
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); savePost(); }
+});
+</script>
+
+<!-- Load the shared data files so the admin has them -->
+<script src="../js/projects-data.js"></script>
+<script src="../js/posts-data.js"></script>
+</body>
+</html>

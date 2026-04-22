@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Shards of Eternity — Custom EO fantasy MMORPG with full lore overhaul, new content, and community-driven world building.">
+  <title>Shards of Eternity — Ghoul's Grimoire</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+<div id="wrapper">
+  <div id="header">
+    <span id="site-title"><a href="../index.html">Ghoul's Grimoire</a></span>
+    <div id="site-tagline">Development Blog &mdash; EO Community Projects</div>
+  </div>
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div id="nav-inner">
+      <div class="nav-item"><a href="../index.html" class="nav-link">Home</a></div>
+      <div class="nav-item">
+        <a href="index.html" class="nav-link active" data-section="projects">Projects <span class="caret">&#9660;</span></a>
+        <div class="nav-dropdown" id="nav-projects-dropdown"></div>
+      </div>
+      <div class="nav-item"><a href="../about.html"     class="nav-link">About Me</a></div>
+      <div class="nav-item"><a href="../resources.html" class="nav-link">Resources</a></div>
+      <button id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div id="mobile-menu" role="dialog">
+    <a href="../index.html">Home</a>
+    <div class="mobile-section-label">Projects</div>
+    <div id="mobile-projects-links"></div>
+    <a href="../about.html">About Me</a>
+    <a href="../resources.html">Resources</a>
+  </div>
+  <div id="main">
+    <div class="panel">
+      <div class="proj-page-header">
+        <div class="proj-page-title">Shards of Eternity</div>
+        <div class="proj-page-desc">Custom EO fantasy MMORPG with full lore overhaul, new content, and community-driven world building.</div>
+        <div class="proj-stats">
+          <div class="proj-stat"><div class="proj-stat-label">Type</div><div class="proj-stat-value">EO Server</div></div>
+          <div class="proj-stat"><div class="proj-stat-label">Language</div><div class="proj-stat-value">C++</div></div>
+          <div class="proj-stat"><div class="proj-stat-label">Status</div><div class="proj-stat-value">In Progress</div></div>
+          <div class="proj-stat"><div class="proj-stat-label">Source</div><div class="proj-stat-value"><a href="#">GitHub</a></div></div>
+        </div>
+      </div>
+      <div class="panel-header">Project Posts</div>
+      <div id="post-feed"></div>
+    </div>
+  </div>
+  <div id="footer">
+    <span>&copy; 2026 Ghoul's Grimoire</span>
+    <nav class="footer-links">
+      <a href="../index.html">Home</a>
+      <a href="index.html">Projects</a>
+      <a href="../about.html">About</a>
+      <a href="../resources.html">Resources</a>
+    </nav>
+  </div>
+</div>
+<script src="../js/markdown.js"></script>
+<script src="../js/projects-data.js"></script>
+<script src="../js/posts-data.js"></script>
+<script src="../js/posts.js"></script>
+<script src="../js/nav.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var projects = window.PROJECTS || [];
+  var dd = document.getElementById('nav-projects-dropdown');
+  var ml = document.getElementById('mobile-projects-links');
+  if (dd) dd.innerHTML = projects.map(function(p){
+    return '<a href="' + p.slug + '.html">' + p.label + '</a>';
+  }).join('');
+  if (ml) ml.innerHTML = projects.map(function(p){
+    return '<a href="' + p.slug + '.html" class="indent">' + p.label + '</a>';
+  }).join('');
+
+  document.getElementById('post-feed').innerHTML =
+    window.renderProjectFeed(window.getProjectPosts('shards-of-eternity'));
+});
+</script>
+</body>
+</html>

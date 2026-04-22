@@ -1,0 +1,51 @@
+// js/projects-data.js — Project configuration
+// Managed by the Admin Panel (admin/index.html)
+// Do not edit manually — admin panel will overwrite this file.
+
+window.PROJECTS = [
+  {
+    slug:   'shards-of-eternity',
+    label:  'Shards of Eternity',
+    desc:   'placeholder',
+    status: 'In Progress',
+    lang:   'C++',
+    type:   'EO Server',
+    github: '#'
+  },
+  {
+    slug:   'eoengine',
+    label:  'EOEngine',
+    desc:   'placeholder',
+    status: 'Active',
+    lang:   'C / C++',
+    type:   'Library',
+    github: '#'
+  },
+  {
+    slug:   'eocobra',
+    label:  'EOCobra',
+    desc:   'placeholder',
+    status: 'In Progress',
+    lang:   'C++ / Lua',
+    type:   'EO Client',
+    github: '#'
+  },
+  {
+    slug:   'eojava',
+    label:  'EOJava',
+    desc:   'placeholder',
+    status: 'Active',
+    lang:   'Java',
+    type:   'EO Client',
+    github: '#'
+  },
+  {
+    slug:   'gearfall-online',
+    label:  'Gearfall Online',
+    desc:   'placeholder',
+    status: 'Planning',
+    lang:   'C++ / EOEngine',
+    type:   'MMORPG',
+    github: '#'
+  }
+];

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="All projects by Ghoul — Shards of Eternity, EOEngine, EOCobra, EOJava, Gearfall Online.">
+  <title>Projects — Ghoul's Grimoire</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body>
+<div id="wrapper">
+
+  <div id="header">
+    <span id="site-title"><a href="../index.html">Ghoul's Grimoire</a></span>
+    <div id="site-tagline">Development Blog &mdash; EO Community Projects</div>
+  </div>
+
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div id="nav-inner">
+      <div class="nav-item"><a href="../index.html" class="nav-link">Home</a></div>
+      <div class="nav-item">
+        <a href="index.html" class="nav-link active" data-section="projects">Projects <span class="caret">&#9660;</span></a>
+        <div class="nav-dropdown" id="nav-projects-dropdown"></div>
+      </div>
+      <div class="nav-item"><a href="../about.html"     class="nav-link">About Me</a></div>
+      <div class="nav-item"><a href="../resources.html" class="nav-link">Resources</a></div>
+      <button id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-menu" role="dialog">
+    <a href="../index.html">Home</a>
+    <div class="mobile-section-label">Projects</div>
+    <div id="mobile-projects-links"></div>
+    <a href="../about.html">About Me</a>
+    <a href="../resources.html">Resources</a>
+  </div>
+
+  <div id="main">
+    <div class="panel">
+      <div class="panel-header">All Projects</div>
+      <div class="projects-list" id="projects-list">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <span>&copy; 2026 Ghoul's Grimoire</span>
+    <nav class="footer-links">
+      <a href="../index.html">Home</a>
+      <a href="../about.html">About</a>
+      <a href="../resources.html">Resources</a>
+    </nav>
+  </div>
+
+</div>
+<script src="../js/projects-data.js"></script>
+<script src="../js/posts-data.js"></script>
+<script src="../js/nav.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var projects = window.PROJECTS || [];
+  var posts    = window.POSTS_DATA || [];
+
+  /* Nav dropdowns */
+  var dd = document.getElementById('nav-projects-dropdown');
+  var ml = document.getElementById('mobile-projects-links');
+  if (dd) dd.innerHTML = projects.map(function(p){
+    return '<a href="' + p.slug + '.html">' + p.label + '</a>';
+  }).join('');
+  if (ml) ml.innerHTML = projects.map(function(p){
+    return '<a href="' + p.slug + '.html" class="indent">' + p.label + '</a>';
+  }).join('');
+
+  /* Project cards */
+  var list = document.getElementById('projects-list');
+  if (!projects.length) {
+    list.innerHTML = '<div class="empty-state"><h3>No Projects</h3></div>';
+    return;
+  }
+  list.innerHTML = projects.map(function(p) {
+    var count = posts.filter(function(post){ return post.project === p.slug; }).length;
+    var meta  = [p.type, p.lang].filter(Boolean).join(' &middot; ');
+    return '<a href="' + p.slug + '.html" class="proj-text-card">' +
+      '<div class="ptc-head">' +
+        '<span class="ptc-name">' + p.label + '</span>' +
+        '<span class="badge">' + (p.status || 'Active') + '</span>' +
+      '</div>' +
+      (meta ? '<div class="ptc-meta">' + meta + '</div>' : '') +
+      '<div class="ptc-desc">' + (p.desc || '') + '</div>' +
+      '<div class="ptc-footer">' +
+        '<span>' + count + ' post' + (count !== 1 ? 's' : '') + '</span>' +
+        '<span class="ptc-arrow">View Project &rarr;</span>' +
+      '</div>' +
+    '</a>';
+  }).join('');
+});
+</script>
+</body>
+</html>
