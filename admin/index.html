@@ -299,16 +299,16 @@ button{cursor:pointer;}
 <script>
 'use strict';
 /* =============================================================
-   GRIMOIRE ADMIN — single-file, self-contained
-   Password gate → FS connect → edit posts/projects → save
+   GRIMOIRE ADMIN -- single-file, self-contained
+   Password gate -> FS connect -> edit posts/projects -> save
    ============================================================= */
 
-/* ── Constants ────────────────────────────────────────────── */
+/* -- Constants ---------------------------------------------- */
 var PW        = 'ghoul1234';
 var PW_KEY    = 'grimoire_auth_v2';
 var FS_OK     = !!window.showDirectoryPicker;
 
-/* ── State ────────────────────────────────────────────────── */
+/* -- State -------------------------------------------------- */
 var rootHandle  = null;
 var postsHandle = null;
 var jsHandle    = null;
@@ -320,12 +320,12 @@ var editingSlug = null;
 var projTab     = 'list';
 var db          = null;
 
-/* ── Auth ─────────────────────────────────────────────────── */
+/* -- Auth --------------------------------------------------- */
 function isAuthed()  { return sessionStorage.getItem(PW_KEY) === '1'; }
 function setAuthed() { sessionStorage.setItem(PW_KEY, '1'); }
 function clearAuth() { sessionStorage.removeItem(PW_KEY); }
 
-/* ── Toast ────────────────────────────────────────────────── */
+/* -- Toast -------------------------------------------------- */
 var _tt;
 function toast(msg, type) {
   var t = document.getElementById('toast');
@@ -336,11 +336,11 @@ function toast(msg, type) {
 }
 function setStatus(msg){ document.getElementById('topbar-status').textContent = msg; }
 
-/* ── DOM helpers ──────────────────────────────────────────── */
+/* -- DOM helpers -------------------------------------------- */
 function $(id){ return document.getElementById(id); }
 function el(id){ var e=$( id); if(!e) throw new Error('Missing #'+id); return e; }
 
-/* ── Mobile tabs ──────────────────────────────────────────── */
+/* -- Mobile tabs -------------------------------------------- */
 document.querySelectorAll('.mt').forEach(function(btn){
   btn.addEventListener('click', function(){
     document.querySelectorAll('.mt').forEach(function(b){b.classList.remove('active');});
@@ -350,7 +350,7 @@ document.querySelectorAll('.mt').forEach(function(btn){
   });
 });
 
-/* ── Password screen ──────────────────────────────────────── */
+/* -- Password screen ---------------------------------------- */
 function showPwScreen(){
   $('pw-screen').style.display='flex';
   $('admin-shell').style.display='none';
@@ -387,7 +387,7 @@ $('pw-btn').addEventListener('click', tryLogin);
 $('pw-input').addEventListener('keydown', function(e){ if(e.key==='Enter') tryLogin(); });
 $('btn-logout').addEventListener('click', function(){ clearAuth(); window.location.reload(); });
 
-/* ── IndexedDB for handle persistence ─────────────────────── */
+/* -- IndexedDB for handle persistence ----------------------- */
 function openDB(){
   return new Promise(function(res,rej){
     var r=indexedDB.open('grimoire-admin-v3',1);
@@ -415,7 +415,7 @@ function getHandle(){
   });
 }
 
-/* ── Connect folder ───────────────────────────────────────── */
+/* -- Connect folder ----------------------------------------- */
 async function connectFolder(existing){
   try{
     var h=existing;
@@ -436,7 +436,7 @@ async function connectFolder(existing){
   }
 }
 
-/* ── After auth: try to restore handle, else ask ─────────── */
+/* -- After auth: try to restore handle, else ask ----------- */
 async function afterAuth(){
   showAdminShell();
   bootAdmin();
@@ -453,14 +453,14 @@ async function afterAuth(){
           postsHandle=await stored.getDirectoryHandle('posts',{create:true});
           jsHandle   =await stored.getDirectoryHandle('js',{create:true});
           toast('File access restored','ok');
-          setStatus('Direct saves active — '+posts.length+' posts loaded');
+          setStatus('Direct saves active -- '+posts.length+' posts loaded');
           return;
         }
       }
     }catch(e){}
-    // No stored handle — add "Connect Folder" button to topbar
+    // No stored handle -- add "Connect Folder" button to topbar
     addConnectBtn();
-    setStatus(posts.length+' posts loaded — connect folder for direct saves');
+    setStatus(posts.length+' posts loaded -- connect folder for direct saves');
   } else {
     setStatus(posts.length+' posts loaded (copy-paste mode)');
   }
@@ -477,15 +477,15 @@ function addConnectBtn(){
     var ok=await connectFolder(null);
     if(ok){
       cb.remove();
-      toast('Folder connected — saves write directly','ok');
-      setStatus('Direct saves active — '+posts.length+' posts loaded');
+      toast('Folder connected -- saves write directly','ok');
+      setStatus('Direct saves active -- '+posts.length+' posts loaded');
     }
   });
   var logout=$('btn-logout');
   logout.parentNode.insertBefore(cb, logout);
 }
 
-/* ── FS write helpers ─────────────────────────────────────── */
+/* -- FS write helpers --------------------------------------- */
 async function writeFileDirect(dirHandle, filename, content){
   var fh=await dirHandle.getFileHandle(filename,{create:true});
   var wr=await fh.createWritable();
@@ -502,7 +502,7 @@ function showCopyDialog(content, label){
   d.innerHTML=
     '<div style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);max-width:700px;width:100%;max-height:84vh;display:flex;flex-direction:column;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">'+
-        '<span style="font-size:11px;font-weight:700;color:var(--head);">Copy → paste into <code style="font-family:monospace;background:var(--surface);padding:1px 5px;font-size:10px;">'+escHtml(label)+'</code></span>'+
+        '<span style="font-size:11px;font-weight:700;color:var(--head);">Copy -> paste into <code style="font-family:monospace;background:var(--surface);padding:1px 5px;font-size:10px;">'+escHtml(label)+'</code></span>'+
         '<button onclick="document.getElementById(\'copy-dlg\').remove()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;">&times;</button>'+
       '</div>'+
       '<textarea readonly style="flex:1;background:var(--surface);border:none;color:#c8c8c8;font-family:Courier New,monospace;font-size:11px;padding:14px;resize:none;min-height:280px;outline:none;">'+escHtml(content)+'</textarea>'+
@@ -519,7 +519,7 @@ function showCopyDialog(content, label){
 
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* ── Data builders ────────────────────────────────────────── */
+/* -- Data builders ------------------------------------------ */
 function buildPostsDataJS(){
   var sorted=posts.slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
   var data=sorted.map(function(p,i){
@@ -534,12 +534,12 @@ function buildPostsDataJS(){
       md:p.body||''
     };
   });
-  return '// AUTO-GENERATED by Grimoire Admin — '+new Date().toISOString()+'\n'+
+  return '// AUTO-GENERATED by Grimoire Admin -- '+new Date().toISOString()+'\n'+
          '// Source: posts/<project>/*.md\n\n'+
          'window.POSTS_DATA = '+JSON.stringify(data,null,2)+';\n';
 }
 function buildProjectsDataJS(){
-  return '// AUTO-GENERATED by Grimoire Admin — '+new Date().toISOString()+'\n\n'+
+  return '// AUTO-GENERATED by Grimoire Admin -- '+new Date().toISOString()+'\n\n'+
          'window.PROJECTS = '+JSON.stringify(projects,null,2)+';\n';
 }
 function buildFM(p){
@@ -557,7 +557,7 @@ function genFilename(title, date){
   return d+'-'+s+'.md';
 }
 
-/* ── Save helpers ─────────────────────────────────────────── */
+/* -- Save helpers ------------------------------------------- */
 async function savePostsData(){
   var js=buildPostsDataJS();
   if(jsHandle){
@@ -596,13 +596,13 @@ async function deletePostFile(post){
   }catch(e){ return false; }
 }
 
-/* ── Markdown preview ─────────────────────────────────────── */
+/* -- Markdown preview --------------------------------------- */
 function md2html(src){
   if(window.parseMarkdown) return window.parseMarkdown(src);
   return '<p>'+escHtml(src).replace(/\n\n/g,'</p><p>')+'</p>';
 }
 
-/* ── Project select ───────────────────────────────────────── */
+/* -- Project select ----------------------------------------- */
 function renderProjectSelect(){
   var sel=$('ed-project');
   if(!sel) return;
@@ -613,7 +613,7 @@ function renderProjectSelect(){
   if(cur) sel.value=cur;
 }
 
-/* ── Post list ────────────────────────────────────────────── */
+/* -- Post list ---------------------------------------------- */
 function renderPostList(filter){
   var pl=$('post-list');
   if(!pl) return;
@@ -630,7 +630,7 @@ function renderPostList(filter){
           return '<div class="post-item'+act+'" data-id="'+p._id+'">'+
             '<div class="post-item-title">'+(p.title||'(untitled)')+'</div>'+
             '<div class="post-item-meta">'+
-              '<span class="pit">'+(p.projectLabel||p.project||'—')+'</span>'+
+              '<span class="pit">'+(p.projectLabel||p.project||'--')+'</span>'+
               '<span>'+p.date+'</span>'+
             '</div>'+
           '</div>';
@@ -650,7 +650,7 @@ function renderPostList(filter){
   });
 }
 
-/* ── Open post in editor ──────────────────────────────────── */
+/* -- Open post in editor ------------------------------------ */
 function openPost(p){
   currentPost=p;
   $('ed-placeholder').style.display='none';
@@ -660,7 +660,7 @@ function openPost(p){
   f.style.gap='11px';
   $('ed-title').value=p.title||'';
   $('ed-date').value=p.date||new Date().toISOString().slice(0,10);
-  // Set project dropdown — if p.project not in list, pick first
+  // Set project dropdown -- if p.project not in list, pick first
   var sel=$('ed-project');
   if(sel){
     sel.value=p.project||'';
@@ -678,7 +678,7 @@ function openPost(p){
   if(edTab&&window.innerWidth<=820) edTab.click();
 }
 
-/* ── New post ─────────────────────────────────────────────── */
+/* -- New post ----------------------------------------------- */
 function newPost(){
   var id='new-'+Date.now();
   var defaultProj=projects.length?projects[0]:{slug:'',label:''};
@@ -693,7 +693,7 @@ function newPost(){
   openPost(p);
 }
 
-/* ── Live preview ─────────────────────────────────────────── */
+/* -- Live preview ------------------------------------------- */
 function updatePreview(){
   clearTimeout(previewTimer);
   previewTimer=setTimeout(function(){
@@ -716,7 +716,7 @@ function updatePreview(){
   },220);
 }
 
-/* ── Save post ────────────────────────────────────────────── */
+/* -- Save post ---------------------------------------------- */
 async function savePost(){
   if(!currentPost){ toast('No post open','err'); return; }
   var title=($('ed-title').value||'').trim();
@@ -744,16 +744,16 @@ async function savePost(){
   renderPostList();
   openPost(currentPost);
   if(wroteMd&&wroteJs){
-    toast('Saved — site updated','ok');
+    toast('Saved -- site updated','ok');
   } else if(wroteMd){
-    toast('Saved MD — copy posts-data.js dialog shown','warn');
+    toast('Saved MD -- copy posts-data.js dialog shown','warn');
   } else {
-    toast('No folder connected — use copy dialogs','warn');
+    toast('No folder connected -- use copy dialogs','warn');
   }
-  setStatus(posts.length+' posts — saved '+new Date().toLocaleTimeString());
+  setStatus(posts.length+' posts -- saved '+new Date().toLocaleTimeString());
 }
 
-/* ── Delete post ──────────────────────────────────────────── */
+/* -- Delete post -------------------------------------------- */
 async function deletePost(){
   if(!currentPost){ toast('No post selected','err'); return; }
   if(!confirm('Delete "'+currentPost.title+'"?\nThis removes it from the site permanently.')) return;
@@ -769,7 +769,7 @@ async function deletePost(){
   setStatus(posts.length+' posts');
 }
 
-/* ── Project modal ────────────────────────────────────────── */
+/* -- Project modal ------------------------------------------ */
 function switchProjTab(tab){
   projTab=tab;
   document.querySelectorAll('.ptab').forEach(function(b){
@@ -791,7 +791,7 @@ function renderProjModal(){
             '<div class="pi-info">'+
               '<div class="pi-slug">'+p.slug+'</div>'+
               '<div class="pi-name">'+escHtml(p.label)+
-                ' <span style="font-size:10px;color:var(--dim);font-weight:400">— '+escHtml(p.status||'')+'</span>'+
+                ' <span style="font-size:10px;color:var(--dim);font-weight:400">-- '+escHtml(p.status||'')+'</span>'+
               '</div>'+
             '</div>'+
             '<div class="pi-btns">'+
@@ -838,10 +838,10 @@ function renderProjModal(){
         '</div>'+
         '<div class="frow">'+
           '<div class="fl"><label>Type</label>'+
-            '<input class="fi" id="np-type" value="'+v('type')+'" placeholder="EO Client, Server…">'+
+            '<input class="fi" id="np-type" value="'+v('type')+'" placeholder="EO Client, Server...">'+
           '</div>'+
           '<div class="fl"><label>Language</label>'+
-            '<input class="fi" id="np-lang" value="'+v('lang')+'" placeholder="Java, C++…">'+
+            '<input class="fi" id="np-lang" value="'+v('lang')+'" placeholder="Java, C++...">'+
           '</div>'+
         '</div>'+
         '<div class="frow">'+
@@ -853,11 +853,11 @@ function renderProjModal(){
             '</select>'+
           '</div>'+
           '<div class="fl"><label>GitHub URL</label>'+
-            '<input class="fi" id="np-github" value="'+v('github')+'" placeholder="https://github.com/…">'+
+            '<input class="fi" id="np-github" value="'+v('github')+'" placeholder="https://github.com/...">'+
           '</div>'+
         '</div>'+
         '<div class="fl"><label>Description</label>'+
-          '<input class="fi" id="np-desc" value="'+v('desc')+'" placeholder="Short description…">'+
+          '<input class="fi" id="np-desc" value="'+v('desc')+'" placeholder="Short description...">'+
         '</div>'+
         '<div class="pf-acts">'+
           '<button class="btn-sp" id="btn-do-save-proj">'+(ed?'Update Project':'Add Project')+'</button>'+
@@ -891,7 +891,7 @@ function renderProjModal(){
   }
 }
 
-/* ── Wire events (after DOM exists but admin shell hidden) ── */
+/* -- Wire events (after DOM exists but admin shell hidden) -- */
 function wireAdminEvents(){
   $('btn-new-post').addEventListener('click', newPost);
   $('btn-save').addEventListener('click',     savePost);
@@ -918,7 +918,7 @@ function wireAdminEvents(){
   $('ed-md').addEventListener('input',       updatePreview);
 }
 
-/* ── Boot admin (populate data, render) ────────────────────── */
+/* -- Boot admin (populate data, render) ---------------------- */
 function bootAdmin(){
   wireAdminEvents();
 
@@ -945,19 +945,19 @@ function bootAdmin(){
   renderPostList();
 }
 
-/* ── Connect screen handler ───────────────────────────────── */
+/* -- Connect screen handler --------------------------------- */
 $('btn-connect-big').addEventListener('click', async function(){
   var ok=await connectFolder(null);
   if(ok){
     await openDB();
     showAdminShell();
     bootAdmin();
-    toast('Folder connected — direct saves active','ok');
-    setStatus(posts.length+' posts loaded — direct saves active');
+    toast('Folder connected -- direct saves active','ok');
+    setStatus(posts.length+' posts loaded -- direct saves active');
   }
 });
 
-/* ── Entry point ──────────────────────────────────────────── */
+/* -- Entry point -------------------------------------------- */
 if(isAuthed()){
   afterAuth();
 } else {
