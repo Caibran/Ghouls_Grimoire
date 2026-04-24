@@ -38,10 +38,10 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 #shell{display:none;flex-direction:column;height:100vh}
 
 /* Topbar */
-#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;height:48px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;height:48px;display:flex;align-items:center;gap:7px;flex-shrink:0;overflow:hidden}
 #tb-title{font-family:var(--fp);font-size:7px;color:var(--head);letter-spacing:1px;white-space:nowrap}
 #tb-status{font-size:11px;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.tbtn{padding:5px 10px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:var(--r);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.tbtn{padding:5px 10px;background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:var(--r);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
 .tbtn:hover{background:#2a2a2a;color:var(--head)}
 .tbtn.g{border-color:#4c7a4c;color:var(--green)}
 .tbtn.g:hover{background:#1c3a1c}
@@ -49,8 +49,11 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 .tbtn.r:hover{background:#2a0c0c}
 .tbtn.a{border-color:#7a5c2c;color:var(--amber)}
 .tbtn.a:hover{background:#2a1c0c}
-#mode-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:2px}
+.tbtn.b{border-color:#2c5c7a;color:var(--link)}
+.tbtn.b:hover{background:#0c2a3a}
+#mode-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:2px;flex-shrink:0}
 #mode-badge.local{background:#1c3a1c;color:var(--green);border:1px solid #4c7a4c}
+#mode-badge.ghapi{background:#0c2a3a;color:var(--link);border:1px solid #2c5c7a}
 #mode-badge.remote{background:#2a1c0c;color:var(--amber);border:1px solid #7a5c2c}
 
 /* Layout */
@@ -89,6 +92,7 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 .eb.sv:hover{background:#1c3a1c}
 .eb.dl{border-color:#7a2c2c;color:var(--red);margin-left:auto}
 .eb.dl:hover{background:#2a0c0c}
+.eb:disabled{opacity:.4;cursor:not-allowed}
 #ed-ph{padding:40px 20px;text-align:center;color:var(--dim)}
 #ed-ph h3{font-size:13px;color:var(--text);margin-bottom:6px}
 
@@ -112,18 +116,21 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 .pm-meta h1{font-size:18px;font-weight:700;color:var(--head);margin-bottom:4px}
 .pm-date{font-size:11px;color:var(--dim)}
 
+/* Generic modal base */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;align-items:center;justify-content:center;padding:16px}
+.ov.open{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column;max-height:90vh;width:100%}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mhdr h2{font-size:9px;font-weight:700;color:var(--head);font-family:var(--fp);letter-spacing:1px}
+.mhdr button{background:none;border:none;color:var(--dim);font-size:22px;line-height:1;padding:0 4px;cursor:pointer}
+.mbody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+
 /* Project modal */
-#pm-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center}
-#pm-ov.open{display:flex}
-#pm-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);width:96%;max-width:600px;max-height:88vh;display:flex;flex-direction:column}
-#pm-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border)}
-#pm-hdr h2{font-size:9px;font-weight:700;color:var(--head);font-family:var(--fp);letter-spacing:1px}
-#pm-hdr button{background:none;border:none;color:var(--dim);font-size:20px;line-height:1;padding:2px 6px}
+#pm-ov .mbox{max-width:600px}
 #pm-tabs{display:flex;border-bottom:1px solid var(--border)}
 .ptab{flex:1;padding:9px;background:var(--panel);border:none;border-right:1px solid var(--border);font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.4px}
 .ptab:last-child{border-right:none}
 .ptab.on{background:var(--surface);color:var(--head)}
-#pm-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .pit2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:10px}
 .pit2-info{flex:1;min-width:0}
 .pit2-slug{font-size:10px;color:var(--dim);font-family:'Courier New',monospace}
@@ -139,31 +146,24 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 .bcp{background:var(--surface);border:1px solid var(--border);color:var(--dim)}
 .bcp:hover{background:var(--panel);color:var(--head)}
 
-/* Download dialog (GitHub Pages fallback) */
-#ddlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9996;align-items:center;justify-content:center;padding:20px}
-#ddlg.open{display:flex}
-#ddlg-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);max-width:500px;width:100%;display:flex;flex-direction:column}
-#ddlg-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
-#ddlg-hdr span{font-size:12px;font-weight:700;color:var(--head)}
-#ddlg-hdr button{background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer}
-#ddlg-body{padding:16px;display:flex;flex-direction:column;gap:12px}
-#ddlg-body p{font-size:12px;color:var(--text);line-height:1.7}
-#ddlg-body ol{font-size:12px;color:var(--text);line-height:1.9;padding-left:18px}
-#ddlg-body code{font-family:'Courier New',monospace;background:var(--surface);border:1px solid var(--blo);padding:2px 6px;border-radius:2px;font-size:11px;color:#aaddcc}
-.ddlg-btns{display:flex;gap:8px;flex-wrap:wrap}
-.ddlg-btns button{padding:7px 14px;font-size:11px;font-weight:600;border-radius:var(--r);background:var(--surface);border:1px solid #4c7a4c;color:var(--green);cursor:pointer}
-.ddlg-btns button:hover{background:#1c3a1c}
+/* GitHub settings modal */
+#gh-ov .mbox{max-width:480px}
+.gh-info{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--text);line-height:1.7}
+.gh-info code{font-family:'Courier New',monospace;background:var(--blo);padding:1px 5px;border-radius:2px;color:#aaddcc;font-size:11px}
+.gh-info a{color:var(--link)}
+.gh-status{font-size:11px;display:flex;align-items:center;gap:6px;padding:6px 0}
+.gh-status.ok{color:var(--green)}
+.gh-status.err{color:var(--red)}
+.gh-status.testing{color:var(--amber)}
 
 /* Toast */
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:9px 18px;font-size:12px;color:var(--dim);z-index:9997;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:9px 18px;font-size:12px;color:var(--dim);z-index:9997;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{color:var(--green);border-color:#4c7a4c}
 #toast.err{color:var(--red);border-color:#7a2c2c}
 #toast.warn{color:var(--amber);border-color:#7a5c2c}
 .empty{padding:40px 20px;text-align:center;color:var(--dim);font-size:12px}
 .empty h3{font-size:13px;color:var(--text);margin-bottom:6px}
-.spinner{display:inline-block;width:10px;height:10px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 /* Mobile tabs */
 #mob-tabs{display:none}
@@ -177,6 +177,8 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
   .mt.on{color:var(--head);background:var(--panel)}
   .mt svg{width:17px;height:17px;fill:currentColor}
   #ed-md{min-height:140px}
+  #topbar{gap:5px;padding:0 8px}
+  #tb-title{display:none}
 }
 @media(min-width:821px){.col{display:flex !important}}
 </style>
@@ -198,22 +200,19 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 <div id="shell">
   <div id="topbar">
     <span id="tb-title">Grimoire Admin</span>
-    <span id="mode-badge" class="remote">GitHub Pages</span>
+    <span id="mode-badge" class="remote">Offline</span>
     <span id="tb-status">Loading...</span>
     <button class="tbtn g" id="btn-proj" type="button">Projects</button>
+    <button class="tbtn b" id="btn-gh" type="button" title="Configure GitHub publishing">GitHub</button>
     <a href="../index.html" class="tbtn" target="_blank">View Site</a>
-    <button class="tbtn a" id="btn-publish" type="button" title="Download updated JS files to deploy">Download JS Files</button>
     <button class="tbtn r" id="btn-logout" type="button" style="margin-left:auto">Log Out</button>
   </div>
 
   <div id="layout">
-    <!-- Col 1: Post list -->
     <div class="col act" id="col-list">
       <div class="col-hdr">Posts <button id="btn-new" type="button">+ New</button></div>
       <div class="col-body" id="post-list"></div>
     </div>
-
-    <!-- Col 2: Editor -->
     <div class="col" id="col-ed">
       <div class="col-hdr">Editor</div>
       <div class="col-body">
@@ -229,7 +228,7 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
             <div class="fl">
               <label>Content (Markdown)</label>
               <textarea class="fi" id="ed-md" rows="14" placeholder="Write in Markdown..."></textarea>
-              <div class="tip">Embed image: <code>![caption](../assets/images/photo.jpg)</code> -- store in <code>assets/images/</code></div>
+              <div class="tip">Images: <code>![caption](../assets/images/photo.jpg)</code> -- upload to <code>assets/images/</code> first</div>
             </div>
             <div class="eacts">
               <button class="eb sv" id="btn-save" type="button">Save Post</button>
@@ -240,8 +239,6 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
         </div>
       </div>
     </div>
-
-    <!-- Col 3: Preview -->
     <div class="col" id="col-prev">
       <div class="col-hdr">Preview</div>
       <div class="col-body"><div id="prev-body"><div class="empty"><h3>Preview</h3><p>Edit a post to see it here.</p></div></div></div>
@@ -262,30 +259,38 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 </div>
 
 <!-- PROJECT MODAL -->
-<div id="pm-ov">
-  <div id="pm-box">
-    <div id="pm-hdr"><h2>Manage Projects</h2><button id="btn-pm-close" type="button">&times;</button></div>
+<div class="ov" id="pm-ov">
+  <div class="mbox" style="max-width:600px">
+    <div class="mhdr"><h2>Manage Projects</h2><button id="btn-pm-close" type="button">&times;</button></div>
     <div id="pm-tabs">
       <button class="ptab on" data-ptab="list" type="button">Projects</button>
       <button class="ptab" data-ptab="add" type="button">Add / Edit</button>
     </div>
-    <div id="pm-body"></div>
+    <div class="mbody" id="pm-body"></div>
   </div>
 </div>
 
-<!-- DOWNLOAD DIALOG (GitHub Pages fallback) -->
-<div id="ddlg">
-  <div id="ddlg-box">
-    <div id="ddlg-hdr"><span>Deploy Changes</span><button id="ddlg-x" type="button">&times;</button></div>
-    <div id="ddlg-body">
-      <p>You are on GitHub Pages. Files cannot be written directly.</p>
-      <ol>
-        <li>Click the buttons below to download the updated data files</li>
-        <li>Replace <code>js/posts-data.js</code> and <code>js/projects-data.js</code> in your local project</li>
-        <li>Run: <code>git add -A &amp;&amp; git commit -m "update posts" &amp;&amp; git push</code></li>
-      </ol>
-      <p style="color:var(--dim);font-size:11px">Tip: run <code>node server.js</code> locally for instant saving.</p>
-      <div class="ddlg-btns" id="ddlg-btns"></div>
+<!-- GITHUB SETTINGS MODAL -->
+<div class="ov" id="gh-ov">
+  <div class="mbox" style="max-width:480px">
+    <div class="mhdr"><h2>GitHub Publishing</h2><button id="btn-gh-close" type="button">&times;</button></div>
+    <div class="mbody">
+      <div class="gh-info">
+        Connect a GitHub Personal Access Token so every Save and Delete publishes directly to your repo — no extra steps.<br><br>
+        1. Go to <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
+        2. Select <code>repo</code> scope only<br>
+        3. Copy the token and paste it below<br>
+        4. GitHub Pages rebuilds automatically (~30 sec)
+      </div>
+      <div class="fl"><label>GitHub Username / Org</label><input class="fi" id="gh-owner" type="text" placeholder="Caibran" autocomplete="off"></div>
+      <div class="fl"><label>Repository Name</label><input class="fi" id="gh-repo" type="text" placeholder="Ghouls_Grimoire" autocomplete="off"></div>
+      <div class="fl"><label>Branch</label><input class="fi" id="gh-branch" type="text" placeholder="main" autocomplete="off"></div>
+      <div class="fl"><label>Personal Access Token</label><input class="fi" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxx" autocomplete="off"></div>
+      <div id="gh-status" class="gh-status"></div>
+      <div class="pf-acts">
+        <button class="bsp" id="btn-gh-save" type="button">Save & Test</button>
+        <button class="bcp" id="btn-gh-clear" type="button">Disconnect</button>
+      </div>
     </div>
   </div>
 </div>
@@ -293,39 +298,36 @@ input,textarea,select{font-family:var(--fb);font-size:13px}
 <div id="toast"></div>
 
 <script>
-(function() {
+(function(){
 'use strict';
-
-/* ============================================================
-   GRIMOIRE ADMIN
-   - Detects local dev server (node server.js) via /api/ping
-   - Local mode: saves write directly to disk via API
-   - Remote mode (GitHub Pages): generates downloadable files
-   ============================================================ */
 
 var PW       = 'ghoul1234';
 var PW_KEY   = 'ga_auth';
 var DATA_KEY = 'ga_data';
-var LOCAL_API = '';   // set to 'http://localhost:3000' when server detected
-var IS_LOCAL  = false;
+var GH_KEY   = 'ga_gh';    // stores { owner, repo, branch, token }
 
-/* ---- Markdown renderer ------------------------------------ */
-function md2html(src) {
-  if (!src) return '';
-  var cb = [], ic = [];
-  var s = src.replace(/```([\w]*)\r?\n([\s\S]*?)```/g, function(_,la,co) { cb.push({lang:la,code:co}); return '\x00CB'+(cb.length-1)+'\x00'; });
-  s = s.replace(/`([^`\r\n]+)`/g, function(_,c) { ic.push(esc(c)); return '\x00IC'+(ic.length-1)+'\x00'; });
+var IS_LOCAL = false;
+var GH_CFG   = null;       // loaded from localStorage
+
+/* ================================================================
+   MARKDOWN RENDERER
+================================================================ */
+function md2html(src){
+  if(!src)return '';
+  var cb=[],ic=[];
+  var s=src.replace(/```([\w]*)\r?\n([\s\S]*?)```/g,function(_,la,co){cb.push({lang:la,code:co});return '\x00CB'+(cb.length-1)+'\x00';});
+  s=s.replace(/`([^`\r\n]+)`/g,function(_,c){ic.push(esc(c));return '\x00IC'+(ic.length-1)+'\x00';});
   var lines=s.split(/\r?\n/),out=[],i=0;
   while(i<lines.length){
     var r=lines[i];
-    if(r.trim()===''){out.push('');i++;continue}
-    if(/^\x00CB\d+\x00$/.test(r.trim())){out.push(r.trim());i++;continue}
+    if(r.trim()===''){out.push('');i++;continue;}
+    if(/^\x00CB\d+\x00$/.test(r.trim())){out.push(r.trim());i++;continue;}
     var hm=r.match(/^(#{1,6})\s+(.+)$/);
-    if(hm){out.push('<h'+hm[1].length+'>'+inl(hm[2],ic)+'</h'+hm[1].length+'>');i++;continue}
-    if(/^---+$/.test(r.trim())){out.push('<hr>');i++;continue}
-    if(/^> /.test(r)){var bq=[];while(i<lines.length&&/^> /.test(lines[i])){bq.push(inl(lines[i].slice(2),ic));i++;}out.push('<blockquote>'+bq.join('<br>')+'</blockquote>');continue}
-    if(/^[-*] /.test(r)){var ul=[];while(i<lines.length&&/^[-*] /.test(lines[i])){ul.push('<li>'+inl(lines[i].replace(/^[-*] /,''),ic)+'</li>');i++;}out.push('<ul>'+ul.join('')+'</ul>');continue}
-    if(/^\d+\. /.test(r)){var ol=[];while(i<lines.length&&/^\d+\. /.test(lines[i])){ol.push('<li>'+inl(lines[i].replace(/^\d+\.\s+/,''),ic)+'</li>');i++;}out.push('<ol>'+ol.join('')+'</ol>');continue}
+    if(hm){out.push('<h'+hm[1].length+'>'+inl(hm[2],ic)+'</h'+hm[1].length+'>');i++;continue;}
+    if(/^---+$/.test(r.trim())){out.push('<hr>');i++;continue;}
+    if(/^> /.test(r)){var bq=[];while(i<lines.length&&/^> /.test(lines[i])){bq.push(inl(lines[i].slice(2),ic));i++;}out.push('<blockquote>'+bq.join('<br>')+'</blockquote>');continue;}
+    if(/^[-*] /.test(r)){var ul=[];while(i<lines.length&&/^[-*] /.test(lines[i])){ul.push('<li>'+inl(lines[i].replace(/^[-*] /,''),ic)+'</li>');i++;}out.push('<ul>'+ul.join('')+'</ul>');continue;}
+    if(/^\d+\. /.test(r)){var ol=[];while(i<lines.length&&/^\d+\. /.test(lines[i])){ol.push('<li>'+inl(lines[i].replace(/^\d+\.\s+/,''),ic)+'</li>');i++;}out.push('<ol>'+ol.join('')+'</ol>');continue;}
     var para=[];
     while(i<lines.length&&lines[i].trim()!==''&&!/^#/.test(lines[i])&&!/^[-*] /.test(lines[i])&&!/^\d+\. /.test(lines[i])&&!/^> /.test(lines[i])&&!/^---+$/.test(lines[i].trim())&&!/^\x00CB/.test(lines[i].trim())){para.push(inl(lines[i],ic));i++;}
     if(para.length)out.push('<p>'+para.join('\n')+'</p>');
@@ -341,24 +343,44 @@ function inl(s,ic){
   return s.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/_(.+?)_/g,'<em>$1</em>').replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2">$1</a>');
 }
 
-/* ---- Helpers ---------------------------------------------- */
+/* ================================================================
+   HELPERS
+================================================================ */
 function g(id){return document.getElementById(id);}
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function today(){return new Date().toISOString().slice(0,10);}
 function uid(){return 'p'+Date.now()+Math.random().toString(36).slice(2,6);}
 function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');}
 function fname(title,date){return ((date||today()).replace(/-/g,''))+'-'+slugify(title||'post').slice(0,50)+'.md';}
+function toB64(str){
+  // UTF-8 safe base64
+  var bytes=new TextEncoder().encode(str);
+  var binary='';
+  bytes.forEach(function(b){binary+=String.fromCharCode(b);});
+  return btoa(binary);
+}
 
 var _tt;
-function toast(msg,type){var t=g('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(function(){t.className='';},3400);}
+function toast(msg,type){
+  var t=g('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');
+  clearTimeout(_tt);_tt=setTimeout(function(){t.className='';},3600);
+}
 function setStatus(msg){if(g('tb-status'))g('tb-status').textContent=msg;}
+function setBusy(busy){
+  var btns=[g('btn-save'),g('btn-del')];
+  btns.forEach(function(b){if(b)b.disabled=busy;});
+}
 
-/* ---- Auth ------------------------------------------------- */
+/* ================================================================
+   AUTH
+================================================================ */
 function isAuth(){return sessionStorage.getItem(PW_KEY)==='1';}
 function setAuth(){sessionStorage.setItem(PW_KEY,'1');}
 function clearAuth(){sessionStorage.removeItem(PW_KEY);}
 
-/* ---- Seed data -------------------------------------------- */
+/* ================================================================
+   SEED DATA
+================================================================ */
 var SEED_PROJECTS=[
   {slug:'shards-of-eternity',label:'Shards of Eternity',desc:'placeholder',status:'In Progress',lang:'C++',type:'EO Server',github:'#'},
   {slug:'eoengine',label:'EOEngine',desc:'placeholder',status:'Active',lang:'C / C++',type:'Library',github:'#'},
@@ -376,7 +398,9 @@ var SEED_POSTS=[
   {id:'p7',filename:'001-revisited.md',project:'eocobra',projectLabel:'EOCobra',title:'placeholder',date:'2026-04-22',tags:['placeholder'],body:'placeholder'}
 ];
 
-/* ---- State ----------------------------------------------- */
+/* ================================================================
+   STATE
+================================================================ */
 var state={projects:[],posts:[]};
 
 function loadState(){
@@ -391,9 +415,17 @@ function loadState(){
     }
   }catch(e){state={projects:SEED_PROJECTS.slice(),posts:SEED_POSTS.slice()};}
 }
-function saveState(){try{localStorage.setItem(DATA_KEY,JSON.stringify(state));}catch(e){}}
+function saveLocalState(){try{localStorage.setItem(DATA_KEY,JSON.stringify(state));}catch(e){}}
 
-/* ---- JS file builders ------------------------------------ */
+function loadGHConfig(){
+  try{var r=localStorage.getItem(GH_KEY);GH_CFG=r?JSON.parse(r):null;}catch(e){GH_CFG=null;}
+}
+function saveGHConfig(cfg){GH_CFG=cfg;try{localStorage.setItem(GH_KEY,JSON.stringify(cfg));}catch(e){}}
+function clearGHConfig(){GH_CFG=null;try{localStorage.removeItem(GH_KEY);}catch(e){}}
+
+/* ================================================================
+   FILE BUILDERS
+================================================================ */
 function buildPostsDataJS(){
   var sorted=state.posts.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
   var arr=sorted.map(function(p,i){
@@ -404,95 +436,176 @@ function buildPostsDataJS(){
 function buildProjectsDataJS(){
   return '// AUTO-GENERATED by Grimoire Admin -- '+new Date().toISOString()+'\nwindow.PROJECTS = '+JSON.stringify(state.projects,null,2)+';\n';
 }
-function buildPostFM(p){
-  return '---\ntitle: "'+p.title.replace(/"/g,'\\"')+'"\ndate: '+p.date+'\nproject: '+p.project+'\nprojectLabel: '+p.projectLabel+'\ntags: '+(p.tags||[]).join(', ')+'\n---\n\n'+p.body;
+function buildPostMarkdown(p){
+  return '---\ntitle: "'+p.title.replace(/"/g,'\\"')+'"\ndate: '+(p.date||today())+'\nproject: '+(p.project||'')+'\nprojectLabel: '+(p.projectLabel||'')+'\ntags: '+(p.tags||[]).join(', ')+'\n---\n\n'+(p.body||'');
 }
 
-/* ---- API calls (local server mode) ----------------------- */
-function apiPost(endpoint,body){
-  return fetch(LOCAL_API+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(function(r){return r.json();});
+/* ================================================================
+   GITHUB API
+================================================================ */
+function ghHeaders(){
+  return {
+    'Authorization':'token '+GH_CFG.token,
+    'Accept':'application/vnd.github.v3+json',
+    'Content-Type':'application/json'
+  };
+}
+function ghUrl(path){
+  return 'https://api.github.com/repos/'+GH_CFG.owner+'/'+GH_CFG.repo+'/contents/'+path;
 }
 
-/* ---- Persist to disk (local) or offer download (remote) -- */
-function persistAll(onDone){
-  var postsJS=buildPostsDataJS();
-  var projsJS=buildProjectsDataJS();
-  if(IS_LOCAL){
-    // Write both JS files via API
-    Promise.all([
-      apiPost('/api/save-js',{filename:'posts-data.js',content:postsJS}),
-      apiPost('/api/save-js',{filename:'projects-data.js',content:projsJS})
-    ]).then(function(){
-      if(onDone)onDone();
-    }).catch(function(e){
-      toast('API error: '+e.message,'err');
+// Get a file's SHA (null if it doesn't exist)
+function ghGetSHA(path){
+  return fetch(ghUrl(path)+'?ref='+GH_CFG.branch,{headers:ghHeaders()})
+    .then(function(r){
+      if(r.status===404)return null;
+      if(!r.ok)throw new Error('GitHub error '+r.status+' for '+path);
+      return r.json().then(function(d){return d.sha||null;});
     });
-  }
-  // Always save to localStorage too
-  saveState();
 }
 
-function persistPost(post,onDone){
-  if(IS_LOCAL){
-    var content=buildPostFM(post);
-    apiPost('/api/save-post',{project:post.project,filename:post.filename,content:content})
+// Create or update a file
+function ghPutFile(path,content,message){
+  return ghGetSHA(path).then(function(sha){
+    var body={message:message,content:toB64(content),branch:GH_CFG.branch};
+    if(sha)body.sha=sha;
+    return fetch(ghUrl(path),{method:'PUT',headers:ghHeaders(),body:JSON.stringify(body)})
       .then(function(r){
-        if(r.ok){persistAll(onDone);}
-        else{toast('Save error: '+(r.error||'unknown'),'err');}
-      }).catch(function(e){toast('Save error: '+e.message,'err');});
-  } else {
-    saveState();
-    if(onDone)onDone();
-  }
+        if(!r.ok)return r.json().then(function(d){throw new Error(d.message||'GitHub PUT failed '+r.status);});
+        return r.json();
+      });
+  });
 }
 
-function deletePostFile(post,onDone){
-  if(IS_LOCAL&&post.filename&&post.project){
-    apiPost('/api/delete-post',{project:post.project,filename:post.filename})
-      .then(function(){persistAll(onDone);})
-      .catch(function(e){toast('Delete error: '+e.message,'err');});
-  } else {
-    saveState();
-    if(onDone)onDone();
-  }
+// Delete a file
+function ghDeleteFile(path,message){
+  return ghGetSHA(path).then(function(sha){
+    if(!sha)return {ok:true,skipped:true}; // already gone
+    return fetch(ghUrl(path),{method:'DELETE',headers:ghHeaders(),body:JSON.stringify({message:message,sha:sha,branch:GH_CFG.branch})})
+      .then(function(r){
+        if(!r.ok)return r.json().then(function(d){throw new Error(d.message||'GitHub DELETE failed '+r.status);});
+        return r.json();
+      });
+  });
 }
 
-/* ---- Download files (remote mode) ------------------------ */
-function downloadFile(content,filename){
-  var blob=new Blob([content],{type:'text/plain'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download=filename;a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+// Test token validity
+function ghTestToken(){
+  return fetch('https://api.github.com/repos/'+GH_CFG.owner+'/'+GH_CFG.repo,{headers:ghHeaders()})
+    .then(function(r){
+      if(r.status===401||r.status===403)throw new Error('Invalid token or no access');
+      if(r.status===404)throw new Error('Repository not found: '+GH_CFG.owner+'/'+GH_CFG.repo);
+      if(!r.ok)throw new Error('GitHub error '+r.status);
+      return r.json();
+    });
 }
-function showDownloadDialog(){
+
+/* ================================================================
+   PERSIST OPERATIONS
+================================================================ */
+// Commit post file + posts-data.js + optionally projects-data.js
+function commitPost(post,onDone,onErr){
+  setBusy(true);
+  setStatus('Committing to GitHub...');
+  var postPath='posts/'+post.project+'/'+post.filename;
+  var postContent=buildPostMarkdown(post);
   var postsJS=buildPostsDataJS();
-  var projsJS=buildProjectsDataJS();
-  var btns=g('ddlg-btns');
-  btns.innerHTML='';
-  function makeBtn(label,content,file){
-    var b=document.createElement('button');
-    b.textContent=label;
-    b.addEventListener('click',function(){downloadFile(content,file);});
-    btns.appendChild(b);
-  }
-  makeBtn('Download posts-data.js',postsJS,'posts-data.js');
-  makeBtn('Download projects-data.js',projsJS,'projects-data.js');
-  g('ddlg').classList.add('open');
+  ghPutFile(postPath,postContent,'Add/update post: '+post.title)
+    .then(function(){return ghPutFile('js/posts-data.js',postsJS,'Update posts-data.js');})
+    .then(function(){
+      saveLocalState();
+      setBusy(false);
+      if(onDone)onDone();
+    })
+    .catch(function(e){
+      setBusy(false);
+      if(onErr)onErr(e.message);
+    });
 }
 
-/* ---- Render project select ------------------------------- */
+function commitDeletePost(post,onDone,onErr){
+  setBusy(true);
+  setStatus('Deleting from GitHub...');
+  var postPath='posts/'+post.project+'/'+post.filename;
+  var postsJS=buildPostsDataJS();
+  ghDeleteFile(postPath,'Delete post: '+post.title)
+    .then(function(){return ghPutFile('js/posts-data.js',postsJS,'Update posts-data.js');})
+    .then(function(){
+      saveLocalState();
+      setBusy(false);
+      if(onDone)onDone();
+    })
+    .catch(function(e){
+      setBusy(false);
+      if(onErr)onErr(e.message);
+    });
+}
+
+function commitProjectsData(onDone,onErr){
+  setBusy(true);
+  var projsJS=buildProjectsDataJS();
+  ghPutFile('js/projects-data.js',projsJS,'Update projects-data.js')
+    .then(function(){
+      saveLocalState();
+      setBusy(false);
+      if(onDone)onDone();
+    })
+    .catch(function(e){
+      setBusy(false);
+      if(onErr)onErr(e.message);
+    });
+}
+
+// Local server API
+function apiPost(ep,body){
+  return fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});
+}
+function localSavePost(post,postsJS,onDone,onErr){
+  var content=buildPostMarkdown(post);
+  Promise.all([
+    apiPost('/api/save-post',{project:post.project,filename:post.filename,content:content}),
+    apiPost('/api/save-js',{filename:'posts-data.js',content:postsJS})
+  ]).then(function(){saveLocalState();if(onDone)onDone();}).catch(function(e){if(onErr)onErr(e.message);});
+}
+function localDeletePost(post,postsJS,onDone,onErr){
+  Promise.all([
+    apiPost('/api/delete-post',{project:post.project,filename:post.filename}),
+    apiPost('/api/save-js',{filename:'posts-data.js',content:postsJS})
+  ]).then(function(){saveLocalState();if(onDone)onDone();}).catch(function(e){if(onErr)onErr(e.message);});
+}
+
+/* ================================================================
+   MODE BADGE
+================================================================ */
+function updateModeBadge(){
+  var badge=g('mode-badge');
+  if(!badge)return;
+  if(IS_LOCAL){
+    badge.textContent='LOCAL SERVER';badge.className='local';
+    setStatus(state.posts.length+' posts -- direct disk writes');
+  } else if(GH_CFG&&GH_CFG.token){
+    badge.textContent='GITHUB LIVE';badge.className='ghapi';
+    setStatus(state.posts.length+' posts -- publishing via GitHub API');
+  } else {
+    badge.textContent='OFFLINE';badge.className='remote';
+    setStatus(state.posts.length+' posts -- GitHub not configured');
+  }
+}
+
+/* ================================================================
+   RENDER PROJECT SELECT
+================================================================ */
 function renderProjSelect(){
-  var sel=g('ed-proj');
-  if(!sel)return;
+  var sel=g('ed-proj');if(!sel)return;
   var cur=sel.value;
   sel.innerHTML=state.projects.map(function(p){return '<option value="'+eh(p.slug)+'">'+eh(p.label)+'</option>';}).join('');
   if(cur)sel.value=cur;
 }
 
-/* ---- Current post state ---------------------------------- */
-var cur=null, prevTimer=null;
+/* ================================================================
+   EDITOR
+================================================================ */
+var cur=null,prevTimer=null;
 
 function openPost(p){
   cur=p;
@@ -522,12 +635,11 @@ function updatePreview(){
   prevTimer=setTimeout(function(){
     var sl=g('ed-proj')?g('ed-proj').value:'';
     var proj=state.projects.find(function(p){return p.slug===sl;});
-    var label=proj?proj.label:sl;
     var dv=g('ed-date')?g('ed-date').value:'';
     var ds=dv?new Date(dv+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'';
     var title=g('ed-title')?g('ed-title').value:'';
     var body=g('ed-md')?g('ed-md').value:'';
-    g('prev-body').innerHTML='<div class="pm-meta"><span class="pm-tag">'+eh(label)+'</span><h1>'+(title?eh(title):'Untitled')+'</h1><span class="pm-date">'+eh(ds)+'</span></div>'+md2html(body);
+    g('prev-body').innerHTML='<div class="pm-meta"><span class="pm-tag">'+eh(proj?proj.label:sl)+'</span><h1>'+(title?eh(title):'Untitled')+'</h1><span class="pm-date">'+eh(ds)+'</span></div>'+md2html(body);
   },220);
 }
 
@@ -538,59 +650,72 @@ function savePost(){
   var projSlug=g('ed-proj').value||'';
   if(!projSlug){toast('Select a project first','err');return;}
   var proj=state.projects.find(function(p){return p.slug===projSlug;});
-  var projLabel=proj?proj.label:projSlug;
-  // Keep existing filename or generate a new one
   var file=cur.filename||fname(title,g('ed-date').value);
   Object.assign(cur,{
-    title:title,
-    date:g('ed-date').value,
-    project:projSlug,
-    projectLabel:projLabel,
+    title:title,date:g('ed-date').value,project:projSlug,
+    projectLabel:proj?proj.label:projSlug,
     tags:(g('ed-tags').value||'').split(',').map(function(t){return t.trim();}).filter(Boolean),
-    body:g('ed-md').value,
-    filename:file
+    body:g('ed-md').value,filename:file
   });
-  // Update state array
   var idx=state.posts.findIndex(function(p){return p.id===cur.id;});
   if(idx===-1)state.posts.push(cur); else state.posts[idx]=cur;
+  var postsJS=buildPostsDataJS();
 
-  persistPost(cur,function(){
-    renderList();
-    if(IS_LOCAL){
+  if(IS_LOCAL){
+    localSavePost(cur,postsJS,function(){
+      renderList();updateModeBadge();
       toast('Saved -- files written to disk','ok');
-      setStatus(state.posts.length+' posts -- saved '+new Date().toLocaleTimeString());
-    } else {
-      toast('Saved to browser -- click "Download JS Files" to publish','warn');
-    }
-  });
+    },function(e){toast('Save error: '+e,'err');});
+  } else if(GH_CFG&&GH_CFG.token){
+    commitPost(cur,function(){
+      renderList();updateModeBadge();
+      toast('Published to GitHub -- site rebuilds in ~30s','ok');
+    },function(e){
+      saveLocalState();renderList();
+      toast('GitHub error: '+e,'err');
+    });
+  } else {
+    saveLocalState();renderList();updateModeBadge();
+    toast('Saved locally -- open GitHub panel to publish','warn');
+  }
 }
 
 function deletePost(){
   if(!cur){toast('No post selected','err');return;}
-  if(!confirm('Delete "'+cur.title+'"?\nThis will remove the post from the site.'))return;
+  if(!confirm('Delete "'+cur.title+'"? This removes it from the site.'))return;
   var toDelete=cur;
   state.posts=state.posts.filter(function(p){return p.id!==toDelete.id;});
   cur=null;
   g('ed-form').style.display='none';
   g('ed-ph').style.display='';
   g('prev-body').innerHTML='<div class="empty"><h3>Preview</h3><p>Select a post.</p></div>';
+  var postsJS=buildPostsDataJS();
 
-  deletePostFile(toDelete,function(){
-    renderList();
-    if(IS_LOCAL){
-      toast('Deleted -- site updated','ok');
-    } else {
-      toast('Deleted -- click "Download JS Files" to publish','warn');
-    }
-    setStatus(state.posts.length+' posts');
-  });
+  if(IS_LOCAL){
+    localDeletePost(toDelete,postsJS,function(){
+      renderList();updateModeBadge();
+      toast('Deleted -- files updated on disk','ok');
+    },function(e){toast('Delete error: '+e,'err');});
+  } else if(GH_CFG&&GH_CFG.token){
+    commitDeletePost(toDelete,function(){
+      renderList();updateModeBadge();
+      toast('Deleted from GitHub -- site rebuilds in ~30s','ok');
+    },function(e){
+      saveLocalState();renderList();
+      toast('GitHub error: '+e,'err');
+    });
+  } else {
+    saveLocalState();renderList();updateModeBadge();
+    toast('Deleted locally -- open GitHub panel to publish','warn');
+  }
 }
 
-/* ---- Render post list ------------------------------------ */
+/* ================================================================
+   POST LIST
+================================================================ */
 var listFilter='';
 function renderList(){
-  var pl=g('post-list');
-  if(!pl)return;
+  var pl=g('post-list');if(!pl)return;
   var filtered=listFilter?state.posts.filter(function(p){return p.project===listFilter;}):state.posts;
   var sorted=filtered.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
   var opts='<option value="">All Projects</option>'+state.projects.map(function(p){return '<option value="'+eh(p.slug)+'">'+eh(p.label)+'</option>';}).join('');
@@ -601,10 +726,12 @@ function renderList(){
     }).join(''):'<div class="empty"><h3>No Posts</h3><p>Tap + New to create one.</p></div>');
   var lf=g('list-filter');
   if(lf){if(listFilter)lf.value=listFilter;lf.addEventListener('change',function(){listFilter=lf.value;renderList();});}
-  pl.querySelectorAll('.pi').forEach(function(item){item.addEventListener('click',function(){var p=state.posts.find(function(x){return x.id===item.dataset.id;});if(p){openPost(p);}});});
+  pl.querySelectorAll('.pi').forEach(function(item){item.addEventListener('click',function(){var p=state.posts.find(function(x){return x.id===item.dataset.id;});if(p)openPost(p);});});
 }
 
-/* ---- Mobile tabs ----------------------------------------- */
+/* ================================================================
+   MOBILE TABS
+================================================================ */
 function switchTab(colId){
   if(window.innerWidth>820)return;
   document.querySelectorAll('.col').forEach(function(c){c.classList.remove('act');});
@@ -613,16 +740,29 @@ function switchTab(colId){
   var btn=document.querySelector('[data-col="'+colId+'"]');if(btn)btn.classList.add('on');
 }
 
-/* ---- Project modal --------------------------------------- */
-var pmTab='list', editingSlug=null;
+/* ================================================================
+   PROJECT MODAL
+================================================================ */
+var pmTab='list',editingSlug=null;
+
 function renderPM(){
   var body=g('pm-body');if(!body)return;
   if(pmTab==='list'){
     body.innerHTML=state.projects.length?state.projects.map(function(p){
-      return '<div class="pit2"><div class="pit2-info"><div class="pit2-slug">'+eh(p.slug)+'</div><div class="pit2-name">'+eh(p.label)+' <span style="font-size:10px;color:var(--dim);font-weight:400">- '+eh(p.status||'')+'</span></div></div><div class="pit2-btns"><button class="be" data-slug="'+eh(p.slug)+'" type="button">Edit</button><button class="bd" data-slug="'+eh(p.slug)+'" type="button">Remove</button></div></div>';
+      return '<div class="pit2"><div class="pit2-info"><div class="pit2-slug">'+eh(p.slug)+'</div><div class="pit2-name">'+eh(p.label)+' <span style="font-size:10px;color:var(--dim);font-weight:400">- '+eh(p.status||'')+'</span></div></div>'+
+        '<div class="pit2-btns"><button class="be" data-slug="'+eh(p.slug)+'" type="button">Edit</button><button class="bd" data-slug="'+eh(p.slug)+'" type="button">Remove</button></div></div>';
     }).join(''):'<div class="empty"><h3>No Projects</h3><p>Use Add/Edit tab.</p></div>';
     body.querySelectorAll('.be').forEach(function(btn){btn.addEventListener('click',function(){editingSlug=btn.dataset.slug;switchPMTab('add');});});
-    body.querySelectorAll('.bd').forEach(function(btn){btn.addEventListener('click',function(){var sl=btn.dataset.slug;if(!confirm('Remove project "'+sl+'"?'))return;state.projects=state.projects.filter(function(p){return p.slug!==sl;});persistAll(function(){renderProjSelect();renderPM();toast('Removed: '+sl,'ok');});});});
+    body.querySelectorAll('.bd').forEach(function(btn){btn.addEventListener('click',function(){
+      var sl=btn.dataset.slug;
+      if(!confirm('Remove project "'+sl+'"?'))return;
+      state.projects=state.projects.filter(function(p){return p.slug!==sl;});
+      var cb=function(){renderProjSelect();renderPM();toast('Removed: '+sl,'ok');updateModeBadge();};
+      var cbe=function(e){toast('Error: '+e,'err');};
+      if(IS_LOCAL){apiPost('/api/save-js',{filename:'projects-data.js',content:buildProjectsDataJS()}).then(function(){saveLocalState();cb();}).catch(function(e){cbe(e.message);});}
+      else if(GH_CFG&&GH_CFG.token){commitProjectsData(cb,cbe);}
+      else{saveLocalState();cb();}
+    });});
   } else {
     var ed=editingSlug?state.projects.find(function(p){return p.slug===editingSlug;}):null;
     var v=function(f){return ed?eh(ed[f]||''):'';}; 
@@ -632,8 +772,9 @@ function renderPM(){
       '<div class="fl"><label>Display Name</label><input class="fi" id="np-label" value="'+v('label')+'" placeholder="My Project" type="text"></div></div>'+
       '<div class="fgrid"><div class="fl"><label>Type</label><input class="fi" id="np-type" value="'+v('type')+'" placeholder="EO Client..." type="text"></div>'+
       '<div class="fl"><label>Language</label><input class="fi" id="np-lang" value="'+v('lang')+'" placeholder="Java..." type="text"></div></div>'+
-      '<div class="fgrid"><div class="fl"><label>Status</label><select class="fi" id="np-status">'+['Active','In Progress','Planning','On Hold','Archived'].map(function(s){return '<option'+(v('status')===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select></div>'+
-      '<div class="fl"><label>GitHub URL</label><input class="fi" id="np-github" value="'+v('github')+'" placeholder="https://github.com/..." type="text"></div></div>'+
+      '<div class="fgrid"><div class="fl"><label>Status</label><select class="fi" id="np-status">'+
+      ['Active','In Progress','Planning','On Hold','Archived'].map(function(s){return '<option'+(v('status')===s?' selected':'')+'>'+s+'</option>';}).join('')+
+      '</select></div><div class="fl"><label>GitHub URL</label><input class="fi" id="np-github" value="'+v('github')+'" placeholder="https://github.com/..." type="text"></div></div>'+
       '<div class="fl"><label>Description</label><input class="fi" id="np-desc" value="'+v('desc')+'" placeholder="Short description..." type="text"></div>'+
       '<div class="pf-acts"><button class="bsp" id="btn-do-proj" type="button">'+(ed?'Update':'Add')+' Project</button>'+(ed?'<button class="bcp" id="btn-cancel-proj" type="button">Cancel</button>':'')+' </div>';
     g('btn-do-proj').addEventListener('click',function(){
@@ -642,46 +783,97 @@ function renderPM(){
       if(!sl||!lb){toast('Slug and name required','err');return;}
       if(!ed&&state.projects.find(function(p){return p.slug===sl;})){toast('Slug already exists','err');return;}
       var obj={slug:ed?ed.slug:sl,label:lb,desc:(g('np-desc').value||'').trim(),status:g('np-status').value,type:(g('np-type').value||'').trim(),lang:(g('np-lang').value||'').trim(),github:(g('np-github').value||'').trim()||'#'};
-      if(ed){Object.assign(ed,obj);}else{state.projects.push(obj);}
-      persistAll(function(){renderProjSelect();editingSlug=null;switchPMTab('list');toast((ed?'Updated: ':'Added: ')+lb,'ok');});
+      if(ed)Object.assign(ed,obj); else state.projects.push(obj);
+      var cb=function(){renderProjSelect();editingSlug=null;switchPMTab('list');toast((ed?'Updated: ':'Added: ')+lb,'ok');updateModeBadge();};
+      var cbe=function(e){toast('Error: '+e,'err');};
+      if(IS_LOCAL){apiPost('/api/save-js',{filename:'projects-data.js',content:buildProjectsDataJS()}).then(function(){saveLocalState();cb();}).catch(function(e){cbe(e.message);});}
+      else if(GH_CFG&&GH_CFG.token){commitProjectsData(cb,cbe);}
+      else{saveLocalState();cb();}
     });
     var cc=g('btn-cancel-proj');if(cc)cc.addEventListener('click',function(){editingSlug=null;switchPMTab('list');});
   }
 }
 function switchPMTab(tab){pmTab=tab;document.querySelectorAll('.ptab').forEach(function(b){b.classList.toggle('on',b.dataset.ptab===tab);});renderPM();}
 
-/* ---- Detect local server --------------------------------- */
-function detectServer(cb){
-  var origin=window.location.origin;
-  // Only check if we might be running via local server
-  if(window.location.protocol==='file:'){cb(false);return;}
-  fetch(origin+'/api/ping',{method:'GET'})
-    .then(function(r){return r.json();})
-    .then(function(d){cb(d&&d.ok===true);})
-    .catch(function(){cb(false);});
+/* ================================================================
+   GITHUB SETTINGS MODAL
+================================================================ */
+function openGHModal(){
+  if(GH_CFG){
+    g('gh-owner').value=GH_CFG.owner||'';
+    g('gh-repo').value=GH_CFG.repo||'';
+    g('gh-branch').value=GH_CFG.branch||'main';
+    g('gh-token').value=GH_CFG.token||'';
+  } else {
+    g('gh-owner').value='Caibran';
+    g('gh-repo').value='Ghouls_Grimoire';
+    g('gh-branch').value='main';
+    g('gh-token').value='';
+  }
+  g('gh-status').textContent='';
+  g('gh-status').className='gh-status';
+  g('gh-ov').classList.add('open');
 }
 
-/* ---- Boot ------------------------------------------------- */
+function wireGHModal(){
+  g('btn-gh-close').addEventListener('click',function(){g('gh-ov').classList.remove('open');});
+  g('gh-ov').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+  g('btn-gh-clear').addEventListener('click',function(){
+    if(!confirm('Disconnect GitHub? Saves will only go to browser storage.'))return;
+    clearGHConfig();updateModeBadge();
+    g('gh-status').textContent='Disconnected.';g('gh-status').className='gh-status warn';
+    g('gh-ov').classList.remove('open');
+    toast('GitHub disconnected','warn');
+  });
+  g('btn-gh-save').addEventListener('click',function(){
+    var cfg={
+      owner:(g('gh-owner').value||'').trim(),
+      repo:(g('gh-repo').value||'').trim(),
+      branch:(g('gh-branch').value||'main').trim(),
+      token:(g('gh-token').value||'').trim()
+    };
+    if(!cfg.owner||!cfg.repo||!cfg.token){
+      g('gh-status').textContent='Please fill in all fields.';g('gh-status').className='gh-status err';return;
+    }
+    g('gh-status').textContent='Testing connection...';g('gh-status').className='gh-status testing';
+    GH_CFG=cfg; // temporarily set so ghHeaders() works
+    ghTestToken().then(function(repo){
+      saveGHConfig(cfg);
+      g('gh-status').textContent='Connected to '+repo.full_name+' ('+repo.visibility+')';
+      g('gh-status').className='gh-status ok';
+      updateModeBadge();
+      toast('GitHub connected -- saves publish directly','ok');
+    }).catch(function(e){
+      GH_CFG=null; // revert
+      g('gh-status').textContent='Error: '+e.message;g('gh-status').className='gh-status err';
+    });
+  });
+}
+
+/* ================================================================
+   DETECT LOCAL SERVER
+================================================================ */
+function detectServer(cb){
+  if(window.location.protocol==='file:'){cb(false);return;}
+  fetch('/api/ping').then(function(r){return r.json();}).then(function(d){cb(!!(d&&d.ok));}).catch(function(){cb(false);});
+}
+
+/* ================================================================
+   BOOT
+================================================================ */
 function boot(){
   loadState();
+  loadGHConfig();
   detectServer(function(local){
     IS_LOCAL=local;
-    if(local){
-      LOCAL_API='';  // same origin
-      var badge=g('mode-badge');
-      badge.textContent='LOCAL';
-      badge.className='local';
-      g('btn-publish').style.display='none';
-      setStatus(state.posts.length+' posts -- direct saves active');
-      toast('Local server detected -- saves write to disk','ok');
-    } else {
-      setStatus(state.posts.length+' posts -- download JS files to publish');
-    }
     renderProjSelect();
     renderList();
+    updateModeBadge();
+    if(local)toast('Local server active -- direct disk writes enabled','ok');
+    else if(GH_CFG&&GH_CFG.token)toast('GitHub connected -- saves publish live','ok');
+    else toast('GitHub not configured -- click GitHub button to set up','warn');
   });
 
-  // Editor events
   g('btn-new').addEventListener('click',newPost);
   g('btn-save').addEventListener('click',savePost);
   g('btn-del').addEventListener('click',deletePost);
@@ -692,32 +884,24 @@ function boot(){
   g('ed-md').addEventListener('input',updatePreview);
   document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePost();}});
 
-  // Topbar
   g('btn-proj').addEventListener('click',function(){editingSlug=null;switchPMTab('list');g('pm-ov').classList.add('open');});
   g('btn-logout').addEventListener('click',function(){clearAuth();location.reload();});
-  g('btn-publish').addEventListener('click',showDownloadDialog);
+  g('btn-gh').addEventListener('click',openGHModal);
+  wireGHModal();
 
-  // Project modal
   g('btn-pm-close').addEventListener('click',function(){g('pm-ov').classList.remove('open');});
   g('pm-ov').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
   document.querySelectorAll('.ptab').forEach(function(btn){btn.addEventListener('click',function(){switchPMTab(btn.dataset.ptab);});});
-
-  // Mobile tabs
   document.querySelectorAll('.mt').forEach(function(btn){btn.addEventListener('click',function(){switchTab(btn.dataset.col);});});
-
-  // Download dialog
-  g('ddlg-x').addEventListener('click',function(){g('ddlg').classList.remove('open');});
-  g('ddlg').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 }
 
-/* ---- Entry point ----------------------------------------- */
+/* ================================================================
+   ENTRY POINT
+================================================================ */
 g('pw-go').addEventListener('click',function(){
-  var val=g('pw-in').value;
-  if(val===PW){
-    g('pw-err').textContent='';
-    setAuth();
-    g('pw').style.display='none';
-    g('shell').style.display='flex';
+  if(g('pw-in').value===PW){
+    g('pw-err').textContent='';setAuth();
+    g('pw').style.display='none';g('shell').style.display='flex';
     boot();
   } else {
     g('pw-err').textContent='Incorrect password.';
@@ -727,12 +911,7 @@ g('pw-go').addEventListener('click',function(){
   }
 });
 g('pw-in').addEventListener('keydown',function(e){if(e.key==='Enter')g('pw-go').click();});
-
-if(isAuth()){
-  g('pw').style.display='none';
-  g('shell').style.display='flex';
-  boot();
-}
+if(isAuth()){g('pw').style.display='none';g('shell').style.display='flex';boot();}
 
 })();
 </script>
