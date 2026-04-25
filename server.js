@@ -1,195 +1,229 @@
-#!/usr/bin/env node
-/**
- * Ghoul's Grimoire -- Local Dev Server
- * Serves the site and provides file-write API for the admin panel.
- *
- * Usage:  node server.js
- * Then open: http://localhost:3000/admin/
- *
- * API endpoints (POST, JSON body):
- *   POST /api/save-post    { project, filename, content }  -> writes posts/<project>/<filename>
- *   POST /api/delete-post  { project, filename }           -> deletes posts/<project>/<filename>
- *   POST /api/save-js      { filename, content }           -> writes js/<filename>
- *   GET  /api/ping                                         -> {"ok":true} (admin uses to detect local mode)
- */
-
 'use strict';
 
-var http  = require('http');
-var fs    = require('fs');
-var path  = require('path');
-var url   = require('url');
+/**
+ * Ghoul's Grimoire — Express Server
+ *
+ * Routes:
+ *   GET  /api/projects              List all projects
+ *   GET  /api/posts                 List all post metadata (sorted newest first)
+ *   GET  /api/posts/:project/:file  Read a single post (returns { meta, content })
+ *   POST /api/auth                  { password } -> { token } or 401
+ *   POST /api/posts         [auth]  { project, filename, content } -> save .md
+ *   DELETE /api/posts/:project/:file [auth] -> delete .md
+ *   POST /api/projects      [auth]  Full projects array -> overwrite data/projects.json
+ *
+ * Admin password:  set GRIMOIRE_PW env var, default 'ghoul1234'
+ * Port:            set PORT env var, default 3000
+ */
 
-var ROOT = __dirname;
-var PORT = 3000;
+const express = require('express');
+const fs      = require('fs');
+const path    = require('path');
+const crypto  = require('crypto');
 
-var MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.css':  'text/css; charset=utf-8',
-  '.js':   'application/javascript; charset=utf-8',
-  '.md':   'text/markdown; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png':  'image/png',
-  '.jpg':  'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif':  'image/gif',
-  '.svg':  'image/svg+xml',
-  '.ico':  'image/x-icon',
-  '.webp': 'image/webp',
-  '.woff2':'font/woff2',
-  '.woff': 'font/woff',
-  '.ttf':  'font/ttf',
-};
+const app   = express();
+const ROOT  = __dirname;
+const PORT  = process.env.PORT || 3000;
+const PW    = process.env.GRIMOIRE_PW || 'ghoul1234';
 
-/* ---- Helpers ----------------------------------------------- */
-function readBody(req, cb) {
-  var chunks = [];
-  req.on('data', function(c) { chunks.push(c); });
-  req.on('end', function() {
-    try { cb(null, JSON.parse(Buffer.concat(chunks).toString())); }
-    catch(e) { cb(e, null); }
-  });
+// ---- Token store (in-memory, survives restarts with a fixed secret) ----
+const TOKEN_SECRET = process.env.TOKEN_SECRET || crypto.randomBytes(32).toString('hex');
+const activeSessions = new Set();
+
+function makeToken() {
+  const tok = crypto.randomBytes(32).toString('hex');
+  activeSessions.add(tok);
+  return tok;
+}
+function validToken(tok) {
+  return activeSessions.has(tok);
 }
 
-function json(res, code, obj) {
-  var body = JSON.stringify(obj);
-  res.writeHead(code, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Content-Length': Buffer.byteLength(body)
-  });
-  res.end(body);
+// ---- Middleware ----
+app.use(express.json({ limit: '2mb' }));
+app.use(express.static(ROOT, { index: 'index.html' }));
+
+function requireAuth(req, res, next) {
+  const auth = req.headers['authorization'] || '';
+  const tok  = auth.replace(/^Bearer\s+/i, '').trim();
+  if (!tok || !validToken(tok)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
 }
 
-function safePath(base, rel) {
-  var resolved = path.resolve(base, rel);
+// ---- Path safety ----
+function safePath(base, ...parts) {
+  const joined   = path.join(base, ...parts);
+  const resolved = path.resolve(joined);
   if (!resolved.startsWith(path.resolve(base))) return null;
   return resolved;
 }
 
-/* ---- API handlers ------------------------------------------ */
-function handlePing(req, res) {
-  json(res, 200, { ok: true, cwd: ROOT });
-}
+// ---- Post metadata parser ----
+function parseFrontmatter(raw) {
+  const meta = { title: '', date: '', project: '', projectLabel: '', tags: [] };
+  const body_parts = raw.split(/^---\s*$/m);
+  let body = raw;
 
-function handleSavePost(req, res) {
-  readBody(req, function(err, body) {
-    if (err) return json(res, 400, { error: 'Bad JSON' });
-    var project  = (body.project  || '').replace(/[^a-z0-9_-]/gi, '');
-    var filename = (body.filename || '').replace(/[^a-z0-9_.@-]/gi, '');
-    var content  = body.content || '';
-    if (!project || !filename) return json(res, 400, { error: 'Missing project or filename' });
-    if (!filename.endsWith('.md')) filename += '.md';
-    var dir = safePath(ROOT, path.join('posts', project));
-    var fp  = safePath(ROOT, path.join('posts', project, filename));
-    if (!dir || !fp) return json(res, 403, { error: 'Invalid path' });
-    try {
-      fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(fp, content, 'utf8');
-      console.log('  SAVE  posts/' + project + '/' + filename);
-      json(res, 200, { ok: true, path: 'posts/' + project + '/' + filename });
-    } catch(e) {
-      json(res, 500, { error: e.message });
-    }
-  });
-}
-
-function handleDeletePost(req, res) {
-  readBody(req, function(err, body) {
-    if (err) return json(res, 400, { error: 'Bad JSON' });
-    var project  = (body.project  || '').replace(/[^a-z0-9_-]/gi, '');
-    var filename = (body.filename || '').replace(/[^a-z0-9_.@-]/gi, '');
-    if (!project || !filename) return json(res, 400, { error: 'Missing project or filename' });
-    var fp = safePath(ROOT, path.join('posts', project, filename));
-    if (!fp) return json(res, 403, { error: 'Invalid path' });
-    try {
-      if (fs.existsSync(fp)) { fs.unlinkSync(fp); console.log('  DEL   posts/' + project + '/' + filename); }
-      json(res, 200, { ok: true });
-    } catch(e) {
-      json(res, 500, { error: e.message });
-    }
-  });
-}
-
-function handleSaveJS(req, res) {
-  readBody(req, function(err, body) {
-    if (err) return json(res, 400, { error: 'Bad JSON' });
-    var filename = (body.filename || '').replace(/[^a-z0-9_.-]/gi, '');
-    var content  = body.content || '';
-    if (!filename || !filename.endsWith('.js')) return json(res, 400, { error: 'Invalid filename' });
-    // Only allow known data files
-    var allowed = ['posts-data.js', 'projects-data.js'];
-    if (allowed.indexOf(filename) === -1) return json(res, 403, { error: 'Not allowed' });
-    var fp = safePath(ROOT, path.join('js', filename));
-    if (!fp) return json(res, 403, { error: 'Invalid path' });
-    try {
-      fs.writeFileSync(fp, content, 'utf8');
-      console.log('  SAVE  js/' + filename);
-      json(res, 200, { ok: true });
-    } catch(e) {
-      json(res, 500, { error: e.message });
-    }
-  });
-}
-
-/* ---- Static file server ------------------------------------ */
-function handleStatic(req, res, urlPath) {
-  var decoded = decodeURIComponent(urlPath);
-  if (decoded === '/' || decoded === '') decoded = '/index.html';
-  var fp = safePath(ROOT, decoded.slice(1));
-  if (!fp) { res.writeHead(403); res.end('Forbidden'); return; }
-  // If directory, serve index.html within it
-  if (fs.existsSync(fp) && fs.statSync(fp).isDirectory()) {
-    fp = path.join(fp, 'index.html');
-  }
-  fs.readFile(fp, function(err, data) {
-    if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not found: ' + urlPath);
-      return;
-    }
-    var ext  = path.extname(fp).toLowerCase();
-    var mime = MIME[ext] || 'application/octet-stream';
-    res.writeHead(200, {
-      'Content-Type': mime,
-      'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*'
+  if (body_parts.length >= 3) {
+    const fm = body_parts[1];
+    body     = body_parts.slice(2).join('---').trim();
+    fm.split('\n').forEach(line => {
+      const m = line.match(/^(\w+):\s*"?([^"]*)"?\s*$/);
+      if (!m) return;
+      const [, key, val] = m;
+      if (key === 'tags') {
+        meta.tags = val.split(',').map(t => t.trim()).filter(Boolean);
+      } else {
+        meta[key] = val.trim();
+      }
     });
-    res.end(data);
-  });
+  }
+
+  return { meta, body };
 }
 
-/* ---- Main router ------------------------------------------- */
-var server = http.createServer(function(req, res) {
-  var parsed = url.parse(req.url);
-  var p = parsed.pathname || '/';
+// ---- Scan all posts ----
+function scanPosts() {
+  const postsDir = path.join(ROOT, 'posts');
+  const results  = [];
 
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST', 'Access-Control-Allow-Headers': 'Content-Type' });
-    res.end(); return;
+  if (!fs.existsSync(postsDir)) return results;
+
+  const projects = fs.readdirSync(postsDir).filter(d => {
+    return fs.statSync(path.join(postsDir, d)).isDirectory();
+  });
+
+  projects.forEach(project => {
+    const projDir = path.join(postsDir, project);
+    const files   = fs.readdirSync(projDir).filter(f => f.endsWith('.md'));
+    files.forEach(file => {
+      try {
+        const raw          = fs.readFileSync(path.join(projDir, file), 'utf8');
+        const { meta }     = parseFrontmatter(raw);
+        results.push({
+          project,
+          filename: file,
+          path:     project + '/' + file,
+          title:    meta.title   || file.replace(/\.md$/, ''),
+          date:     meta.date    || '',
+          projectLabel: meta.projectLabel || project,
+          tags:     meta.tags    || []
+        });
+      } catch (e) { /* skip unreadable files */ }
+    });
+  });
+
+  results.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return results;
+}
+
+// ---- Projects helpers ----
+function readProjects() {
+  const fp = path.join(ROOT, 'data', 'projects.json');
+  try { return JSON.parse(fs.readFileSync(fp, 'utf8')); }
+  catch (e) { return []; }
+}
+function writeProjects(arr) {
+  const fp = path.join(ROOT, 'data', 'projects.json');
+  fs.writeFileSync(fp, JSON.stringify(arr, null, 2), 'utf8');
+}
+
+// ================================================================
+// ROUTES
+// ================================================================
+
+// Auth
+app.post('/api/auth', (req, res) => {
+  const { password } = req.body || {};
+  if (password === PW) {
+    return res.json({ token: makeToken() });
   }
-
-  // API routes (POST only, except ping)
-  if (p === '/api/ping') return handlePing(req, res);
-  if (req.method === 'POST') {
-    if (p === '/api/save-post')   return handleSavePost(req, res);
-    if (p === '/api/delete-post') return handleDeletePost(req, res);
-    if (p === '/api/save-js')     return handleSaveJS(req, res);
-  }
-
-  // Static files
-  handleStatic(req, res, p);
+  res.status(401).json({ error: 'Incorrect password' });
 });
 
-server.listen(PORT, '127.0.0.1', function() {
+// Projects
+app.get('/api/projects', (req, res) => {
+  res.json(readProjects());
+});
+
+app.post('/api/projects', requireAuth, (req, res) => {
+  const projects = req.body;
+  if (!Array.isArray(projects)) return res.status(400).json({ error: 'Expected array' });
+  try {
+    writeProjects(projects);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Posts list
+app.get('/api/posts', (req, res) => {
+  res.json(scanPosts());
+});
+
+// Single post
+app.get('/api/posts/:project/:filename', (req, res) => {
+  const fp = safePath(ROOT, 'posts', req.params.project, req.params.filename);
+  if (!fp || !fp.endsWith('.md')) return res.status(403).json({ error: 'Invalid path' });
+  if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Not found' });
+  try {
+    const raw          = fs.readFileSync(fp, 'utf8');
+    const { meta, body } = parseFrontmatter(raw);
+    res.json({ meta, content: body, project: req.params.project, filename: req.params.filename });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Save / create post
+app.post('/api/posts', requireAuth, (req, res) => {
+  const { project, filename, content } = req.body || {};
+  if (!project || !filename || !content) return res.status(400).json({ error: 'Missing fields' });
+  const safe = filename.replace(/[^a-z0-9._-]/gi, '');
+  if (!safe.endsWith('.md')) return res.status(400).json({ error: 'Filename must end with .md' });
+
+  const dir = safePath(ROOT, 'posts', project);
+  const fp  = safePath(ROOT, 'posts', project, safe);
+  if (!dir || !fp) return res.status(403).json({ error: 'Invalid path' });
+
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(fp, content, 'utf8');
+    res.json({ ok: true, path: project + '/' + safe });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Delete post
+app.delete('/api/posts/:project/:filename', requireAuth, (req, res) => {
+  const fp = safePath(ROOT, 'posts', req.params.project, req.params.filename);
+  if (!fp || !fp.endsWith('.md')) return res.status(403).json({ error: 'Invalid path' });
+  try {
+    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Logout (invalidate token)
+app.post('/api/logout', requireAuth, (req, res) => {
+  const tok = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '').trim();
+  activeSessions.delete(tok);
+  res.json({ ok: true });
+});
+
+// ---- Start ----
+app.listen(PORT, () => {
   console.log('');
-  console.log('  Grimoire Dev Server');
-  console.log('  -------------------');
-  console.log('  Site:  http://localhost:' + PORT + '/');
+  console.log("  Ghoul's Grimoire");
+  console.log('  ----------------');
+  console.log('  http://localhost:' + PORT);
   console.log('  Admin: http://localhost:' + PORT + '/admin/');
-  console.log('');
-  console.log('  Saves write directly to the project folder.');
-  console.log('  When done: git add -A && git commit -m "update" && git push');
+  console.log('  Password: set GRIMOIRE_PW env var (default: ghoul1234)');
   console.log('');
 });

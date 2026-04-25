@@ -62,12 +62,11 @@
   </div>
 </div>
 <script src="../js/markdown.js"></script>
-<script src="../js/projects-data.js"></script>
-<script src="../js/posts-data.js"></script>
 <script src="../js/posts.js"></script>
 <script src="../js/nav.js"></script>
+<script src="../js/api.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+function renderProject() {
   var projects = window.PROJECTS || [];
   var dd = document.getElementById('nav-projects-dropdown');
   var ml = document.getElementById('mobile-projects-links');
@@ -78,9 +77,22 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<a href="' + p.slug + '.html" class="indent">' + p.label + '</a>';
   }).join('');
 
-  document.getElementById('post-feed').innerHTML =
-    window.renderProjectFeed(window.getProjectPosts('gearfall-online'));
-});
+  var posts = window.getProjectPosts('gearfall-online');
+  if (!posts.length) {
+    document.getElementById('post-feed').innerHTML =
+      '<div class="empty-state"><h3>No Posts Yet</h3><p>Check back soon.</p></div>';
+    return;
+  }
+  Promise.all(posts.map(function(p) {
+    return fetch('/api/posts/' + p.project + '/' + p.filename)
+      .then(function(r){ return r.json(); })
+      .then(function(d){ p.md = d.content || ''; return p; })
+      .catch(function(){ return p; });
+  })).then(function(loaded) {
+    document.getElementById('post-feed').innerHTML = window.renderProjectFeed(loaded);
+  });
+}
+document.addEventListener('grimoire:ready', renderProject);
 </script>
 </body>
 </html>

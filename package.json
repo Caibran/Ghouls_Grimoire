@@ -1,0 +1,27 @@
+{
+  "name": "ghoul's-grimoire",
+  "version": "1.0.0",
+  "description": "Ghoul's Grimoire — development blog",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:dev": "NODE_ENV=development node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caibran/ghouls_grimoire.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/caibran/ghouls_grimoire/issues"
+  },
+  "homepage": "https://github.com/caibran/ghouls_grimoire#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

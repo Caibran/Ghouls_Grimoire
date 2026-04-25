@@ -58,15 +58,13 @@
   </div>
 
 </div>
-<script src="../js/projects-data.js"></script>
-<script src="../js/posts-data.js"></script>
 <script src="../js/nav.js"></script>
+<script src="../js/api.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('grimoire:ready', function () {
   var projects = window.PROJECTS || [];
-  var posts    = window.POSTS_DATA || [];
+  var posts    = window.POSTS    || [];
 
-  /* Nav dropdowns */
   var dd = document.getElementById('nav-projects-dropdown');
   var ml = document.getElementById('mobile-projects-links');
   if (dd) dd.innerHTML = projects.map(function(p){
@@ -76,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<a href="' + p.slug + '.html" class="indent">' + p.label + '</a>';
   }).join('');
 
-  /* Project cards */
   var list = document.getElementById('projects-list');
   if (!projects.length) {
     list.innerHTML = '<div class="empty-state"><h3>No Projects</h3></div>';
@@ -102,3 +99,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+

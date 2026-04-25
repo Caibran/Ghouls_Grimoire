@@ -62,35 +62,55 @@
 
 </div>
 <script src="js/markdown.js"></script>
-<script src="js/projects-data.js"></script>
-<script src="js/posts-data.js"></script>
 <script src="js/posts.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/api.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  /* Populate nav dropdown + mobile menu from projects-data.js */
-  if (window.PROJECTS) {
-    var dd = document.getElementById('nav-projects-dropdown');
-    var ml = document.getElementById('mobile-projects-links');
-    if (dd) dd.innerHTML = window.PROJECTS.map(function(p){
-      return '<a href="projects/' + p.slug + '.html">' + p.label + '</a>';
-    }).join('');
-    if (ml) ml.innerHTML = window.PROJECTS.map(function(p){
-      return '<a href="projects/' + p.slug + '.html" class="indent">' + p.label + '</a>';
-    }).join('');
+function renderHome() {
+  var projects = window.PROJECTS || [];
+  var posts    = window.POSTS    || [];
+
+  var dd = document.getElementById('nav-projects-dropdown');
+  var ml = document.getElementById('mobile-projects-links');
+  if (dd) dd.innerHTML = projects.map(function(p){
+    return '<a href="projects/' + p.slug + '.html">' + p.label + '</a>';
+  }).join('');
+  if (ml) ml.innerHTML = projects.map(function(p){
+    return '<a href="projects/' + p.slug + '.html" class="indent">' + p.label + '</a>';
+  }).join('');
+
+  if (!posts.length) {
+    document.getElementById('latest-post-wrap').innerHTML =
+      '<div class="empty-state"><p>No posts yet. Check back soon.</p></div>';
+    return;
   }
 
-  /* Render posts */
-  var posts = window.POSTS || [];
-  if (!posts.length) return;
-  document.getElementById('latest-post-wrap').innerHTML = window.renderFullPost(posts[0]);
+  /* Fetch full content for top post, then render */
+  var top = posts[0];
+  fetch('/api/posts/' + top.project + '/' + top.filename)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      top.md = data.content || '';
+      document.getElementById('latest-post-wrap').innerHTML = window.renderFullPost(top);
+      var next = posts.slice(1, 4);
+      if (next.length) {
+        /* Fetch content for accordion posts */
+        Promise.all(next.map(function(p){
+          return fetch('/api/posts/' + p.project + '/' + p.filename)
+            .then(function(r){ return r.json(); })
+            .then(function(d){ p.md = d.content || ''; return p; });
+        })).then(function(loaded){
+          document.getElementById('accordion-wrap').innerHTML = window.renderAccordion(loaded);
+          if (window.initAccordions) window.initAccordions();
+        });
+      }
+    })
+    .catch(function(){
+      document.getElementById('latest-post-wrap').innerHTML = window.renderFullPost(top);
+    });
+}
 
-  var next = posts.slice(1, 4);
-  if (next.length) {
-    document.getElementById('accordion-wrap').innerHTML = window.renderAccordion(next);
-    if (window.initAccordions) window.initAccordions();
-  }
-});
+document.addEventListener('grimoire:ready', renderHome);
 </script>
 </body>
 </html>

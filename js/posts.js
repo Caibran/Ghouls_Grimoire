@@ -1,27 +1,13 @@
-/* =============================================================
-   posts.js — rendering utilities
-   Depends on: markdown.js (must load first)
-   ============================================================= */
+/**
+ * js/posts.js -- rendering utilities
+ * Data is now fetched by js/api.js (no longer reads window.POSTS_DATA at parse time)
+ */
 (function () {
   'use strict';
 
-  var data = (window.POSTS_DATA || []).slice();
-  data.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
-  window.POSTS = data;
-
-  window.getProjectPosts = function (slug) {
-    return data.filter(function (p) { return p.project === slug; });
-  };
-
-  window.formatDate = function (str) {
-    if (!str) return '';
-    var d = new Date(str + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  };
-
-  /* ── Full post block ─────────────────────────────────────── */
+  /* ---- Full post block ---------------------------------------- */
   window.renderFullPost = function (post) {
-    var html = window.parseMarkdown ? window.parseMarkdown(post.md || '') : (post.html || '');
+    var html = window.parseMarkdown ? window.parseMarkdown(post.md || post.content || '') : '';
     var tags = (post.tags || []).map(function (t) {
       return '<span class="post-tag">#' + t + '</span>';
     }).join('');
@@ -37,12 +23,12 @@
     '</div>';
   };
 
-  /* ── Accordion items ─────────────────────────────────────── */
+  /* ---- Accordion items ---------------------------------------- */
   window.renderAccordion = function (posts) {
     if (!posts.length) return '';
     return '<div class="post-accordion">' +
       posts.map(function (post) {
-        var html = window.parseMarkdown ? window.parseMarkdown(post.md || '') : (post.html || '');
+        var html = window.parseMarkdown ? window.parseMarkdown(post.md || post.content || '') : '';
         var tags = (post.tags || []).map(function (t) {
           return '<span class="post-tag">#' + t + '</span>';
         }).join('');
@@ -66,9 +52,9 @@
     '</div>';
   };
 
-  /* ── Project page feed ───────────────────────────────────── */
+  /* ---- Project page feed ------------------------------------- */
   window.renderProjectFeed = function (posts) {
-    if (!posts.length) {
+    if (!posts || !posts.length) {
       return '<div class="empty-state"><h3>No Posts Yet</h3><p>Check back soon for updates on this project.</p></div>';
     }
     return posts.map(function (p) { return window.renderFullPost(p); }).join('');
