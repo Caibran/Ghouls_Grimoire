@@ -134,6 +134,7 @@ ul { list-style: none; }
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 .nav-item:hover .nav-dropdown { display: block; }
+.nav-dropdown:empty { display: none !important; }
 .nav-dropdown a {
   display: block;
   padding: 10px 16px;

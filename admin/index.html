@@ -571,8 +571,17 @@ function boot(){
 ================================================================ */
 function tryLogin(){
   var pw=g('pw-in').value;
+  if(!pw){g('pw-err').textContent='Enter password.';return;}
+  g('pw-go').disabled=true;
+  g('pw-err').textContent='Connecting…';
   fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
     .then(function(r){
+      /* If the server isn't running, LiteSpeed returns the index.html page
+         instead of JSON — detect that and give a clear message */
+      var ct=r.headers.get('content-type')||'';
+      if(!ct.includes('application/json')){
+        throw new Error('Node.js server is not running. Start the app in cPanel → Node.js, then try again.');
+      }
       if(r.status===401){
         g('pw-err').textContent='Incorrect password.';
         g('pw-in').style.borderColor='#c0392b';
@@ -584,7 +593,10 @@ function tryLogin(){
         if(d.token){setToken(d.token);showShell();}
       });
     })
-    .catch(function(e){g('pw-err').textContent='Server error: '+e.message;});
+    .catch(function(e){
+      g('pw-err').textContent=e.message;
+    })
+    .finally(function(){g('pw-go').disabled=false;});
 }
 
 function showShell(){
