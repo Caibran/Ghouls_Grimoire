@@ -1,17 +1,16 @@
-/**
- * js/posts.js -- rendering utilities
- * Data is now fetched by js/api.js (no longer reads window.POSTS_DATA at parse time)
- */
+/* =============================================================
+   posts.js -- rendering utilities
+   Data is loaded async by js/api.js (no sync read of POSTS_DATA)
+   ============================================================= */
 (function () {
   'use strict';
 
-  /* ---- Full post block ---------------------------------------- */
+  /* ---- Full post block -------------------------------------- */
   window.renderFullPost = function (post) {
     var html = window.parseMarkdown ? window.parseMarkdown(post.md || post.content || '') : '';
     var tags = (post.tags || []).map(function (t) {
       return '<span class="post-tag">#' + t + '</span>';
     }).join('');
-
     return '<div class="post-full">' +
       '<div class="post-header">' +
         '<span class="post-project-tag">' + (post.projectLabel || post.project) + '</span>' +
@@ -23,7 +22,7 @@
     '</div>';
   };
 
-  /* ---- Accordion items ---------------------------------------- */
+  /* ---- Accordion items ------------------------------------- */
   window.renderAccordion = function (posts) {
     if (!posts.length) return '';
     return '<div class="post-accordion">' +
@@ -52,10 +51,10 @@
     '</div>';
   };
 
-  /* ---- Project page feed ------------------------------------- */
+  /* ---- Project page feed ----------------------------------- */
   window.renderProjectFeed = function (posts) {
     if (!posts || !posts.length) {
-      return '<div class="empty-state"><h3>No Posts Yet</h3><p>Check back soon for updates on this project.</p></div>';
+      return '<div class="empty-state"><h3>No Posts Yet</h3><p>Check back soon.</p></div>';
     }
     return posts.map(function (p) { return window.renderFullPost(p); }).join('');
   };
