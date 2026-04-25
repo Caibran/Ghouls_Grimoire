@@ -67,16 +67,6 @@
 <script src="../js/api.js"></script>
 <script>
 function renderProject() {
-  var projects = window.PROJECTS || [];
-  var dd = document.getElementById('nav-projects-dropdown');
-  var ml = document.getElementById('mobile-projects-links');
-  if (dd) dd.innerHTML = projects.map(function(p){
-    return '<a href="' + p.slug + '.html">' + p.label + '</a>';
-  }).join('');
-  if (ml) ml.innerHTML = projects.map(function(p){
-    return '<a href="' + p.slug + '.html" class="indent">' + p.label + '</a>';
-  }).join('');
-
   var posts = window.getProjectPosts('eocobra');
   document.getElementById('post-feed').innerHTML = window.renderProjectFeed(posts);
 }

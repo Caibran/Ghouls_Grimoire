@@ -1,25 +1,17 @@
 /**
  * js/api.js -- Grimoire frontend data loader
  *
- * Fetches /api/projects and /api/posts, then exposes the same
- * globals that the old static scripts did so no other page JS changes.
- *
- * Globals set:
- *   window.PROJECTS      -- array of project objects
- *   window.POSTS_DATA    -- array of post metadata
- *   window.POSTS         -- same array, sorted newest-first
- *
- * Also re-exports rendering helpers from posts.js if already loaded.
- * Fires 'grimoire:ready' on document when data is loaded.
+ * Fetches /api/projects and /api/posts, then:
+ *  1. Sets window.PROJECTS, window.POSTS / window.POSTS_DATA
+ *  2. Auto-populates the nav dropdown on EVERY page (detects URL depth)
+ *  3. Fires 'grimoire:ready' so page scripts can render content
  */
 (function () {
   'use strict';
 
-  var BASE = '';  // same origin always
-
   function get(url) {
-    return fetch(BASE + url).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + url);
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
       return r.json();
     });
   }
@@ -31,15 +23,12 @@
     var projects = results[0] || [];
     var posts    = results[1] || [];
 
-    // Sort newest-first
     posts.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
 
-    // Expose the same globals the old static files did
     window.PROJECTS   = projects;
     window.POSTS_DATA = posts;
     window.POSTS      = posts;
 
-    // Helpers expected by old inline scripts
     window.getProjectPosts = function (slug) {
       return posts.filter(function (p) { return p.project === slug; });
     };
@@ -50,11 +39,29 @@
       });
     };
 
-    // Signal that data is ready
+    /* ---- Auto-populate nav dropdown on every page ----
+       Detect if we are in a subdirectory (e.g. /projects/eojava.html)
+       to build correct relative links.                              */
+    var segments = window.location.pathname
+      .split('/').filter(function (s) { return s !== ''; });
+    /* If pathname has >1 segment we're in a subfolder (projects/) */
+    var prefix = segments.length > 1 ? '' : 'projects/';
+
+    var dd = document.getElementById('nav-projects-dropdown');
+    var ml = document.getElementById('mobile-projects-links');
+    if (dd) dd.innerHTML = projects.map(function (p) {
+      return '<a href="' + prefix + p.slug + '.html">' + p.label + '</a>';
+    }).join('');
+    if (ml) ml.innerHTML = projects.map(function (p) {
+      return '<a href="' + prefix + p.slug + '.html" class="indent">' +
+             p.label + '</a>';
+    }).join('');
+
     document.dispatchEvent(new Event('grimoire:ready'));
 
   }).catch(function (err) {
-    console.error('Grimoire: failed to load site data', err);
+    console.error('Grimoire: failed to load site data:', err);
+    /* Still fire ready so pages don't hang */
     window.PROJECTS   = [];
     window.POSTS_DATA = [];
     window.POSTS      = [];
