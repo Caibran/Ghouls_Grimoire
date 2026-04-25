@@ -52,10 +52,22 @@
     if (dd) dd.innerHTML = projects.map(function (p) {
       return '<a href="' + prefix + p.slug + '.html">' + p.label + '</a>';
     }).join('');
-    if (ml) ml.innerHTML = projects.map(function (p) {
-      return '<a href="' + prefix + p.slug + '.html" class="indent">' +
-             p.label + '</a>';
-    }).join('');
+    if (ml) {
+      ml.innerHTML = projects.map(function (p) {
+        return '<a href="' + prefix + p.slug + '.html" class="indent">' +
+               p.label + '</a>';
+      }).join('');
+      /* Re-attach close-menu listener to dynamically added project links */
+      ml.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          var menu = document.getElementById('mobile-menu');
+          var btn  = document.getElementById('nav-hamburger');
+          if (menu) menu.classList.remove('open');
+          if (btn)  { btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+          document.body.classList.remove('menu-open');
+        });
+      });
+    }
 
     document.dispatchEvent(new Event('grimoire:ready'));
 

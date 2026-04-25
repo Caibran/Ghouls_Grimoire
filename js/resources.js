@@ -44,3 +44,6 @@ window.renderResources = function () {
     '</a>';
   }).join('');
 };
+
+/* Resources are static — render immediately, no server call needed */
+document.addEventListener('DOMContentLoaded', window.renderResources);

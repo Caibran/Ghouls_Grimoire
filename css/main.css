@@ -26,7 +26,11 @@
 
 /* ── Reset ────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+/*
+  overflow-x: clip does NOT create a scroll container, so position:sticky still works.
+  overflow-x: hidden would break sticky nav on all browsers (especially mobile Safari).
+*/
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: clip; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -34,13 +38,30 @@ body {
   font-size: 14px;
   line-height: 1.65;
   min-height: 100vh;
-  overflow-x: hidden;
 }
 body.menu-open { overflow: hidden; }
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); text-decoration: underline; }
 img { max-width: 100%; display: block; }
 ul { list-style: none; }
+
+/* ── Skeleton loading ─────────────────────────────────────── */
+@keyframes skel-shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position:  400px 0; }
+}
+.skel {
+  background: linear-gradient(90deg, #1c1c1c 25%, #272727 50%, #1c1c1c 75%);
+  background-size: 400px 100%;
+  animation: skel-shimmer 1.3s ease-in-out infinite;
+  border-radius: 2px;
+  display: block;
+}
+.skel-wrap { padding: 22px 18px; border-bottom: 1px solid var(--border-lo); }
+.skel-wrap:last-child { border-bottom: none; }
+.skel-h { height: 16px; margin-bottom: 14px; }
+.skel-l { height: 11px; margin-bottom: 8px; }
+.skel-l:last-child { margin-bottom: 0; }
 
 /* ── Custom scrollbar — site-wide ─────────────────────────── */
 /* Webkit (Chrome, Edge, Safari) */
@@ -88,7 +109,7 @@ ul { list-style: none; }
   border-top: none;
   position: sticky;
   top: 0;
-  z-index: 200;
+  z-index: 300;   /* above mobile-menu (250) — hamburger inherits this context */
 }
 #nav-inner {
   display: flex;
@@ -182,9 +203,9 @@ ul { list-style: none; }
   position: fixed;
   inset: 0;
   background: var(--bg);
-  z-index: 150;
+  z-index: 250;           /* above nav (200) */
   overflow-y: auto;
-  padding-top: 80px;
+  padding-top: 48px;      /* exact height of the nav bar */
   padding-bottom: calc(24px + var(--safe-bottom));
 }
 #mobile-menu.open { display: block; }
