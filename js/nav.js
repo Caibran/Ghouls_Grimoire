@@ -33,6 +33,13 @@
     if (!btn || !menu) return;
 
     function open() {
+      /* Measure where the nav bar actually ends in the viewport
+         so the menu always starts exactly below it, whether or
+         not the header has scrolled out of view yet. */
+      var nav = document.getElementById('nav');
+      var navBottom = nav ? Math.round(nav.getBoundingClientRect().bottom) : 48;
+      menu.style.paddingTop = navBottom + 'px';
+
       menu.classList.add('open');
       btn.classList.add('open');
       btn.setAttribute('aria-expanded', 'true');
