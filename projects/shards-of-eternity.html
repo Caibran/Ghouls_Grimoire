@@ -78,19 +78,7 @@ function renderProject() {
   }).join('');
 
   var posts = window.getProjectPosts('shards-of-eternity');
-  if (!posts.length) {
-    document.getElementById('post-feed').innerHTML =
-      '<div class="empty-state"><h3>No Posts Yet</h3><p>Check back soon.</p></div>';
-    return;
-  }
-  Promise.all(posts.map(function(p) {
-    return fetch('/api/posts/' + p.project + '/' + p.filename)
-      .then(function(r){ return r.json(); })
-      .then(function(d){ p.md = d.content || ''; return p; })
-      .catch(function(){ return p; });
-  })).then(function(loaded) {
-    document.getElementById('post-feed').innerHTML = window.renderProjectFeed(loaded);
-  });
+  document.getElementById('post-feed').innerHTML = window.renderProjectFeed(posts);
 }
 document.addEventListener('grimoire:ready', renderProject);
 </script>

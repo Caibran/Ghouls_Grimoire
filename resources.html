@@ -41,9 +41,6 @@
 
   <div id="main">
     <div class="panel">
-      <div class="res-filter-bar" id="category-panel">
-        <!-- populated by JS -->
-      </div>
       <div id="resource-list">
         <!-- populated by JS -->
       </div>
@@ -60,12 +57,11 @@
   </div>
 
 </div>
-<script src="js/projects-data.js"></script>
-<script src="js/resources.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/api.js"></script>
+<script src="js/resources.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  /* Build nav */
+document.addEventListener('grimoire:ready', function () {
   var projects = window.PROJECTS || [];
   var dd = document.getElementById('nav-projects-dropdown');
   var ml = document.getElementById('mobile-projects-links');
@@ -75,37 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (ml) ml.innerHTML = projects.map(function(p){
     return '<a href="projects/' + p.slug + '.html" class="indent">' + p.label + '</a>';
   }).join('');
-
-  /* Resources */
-  var catPanel = document.getElementById('category-panel');
-  var resList  = document.getElementById('resource-list');
-  if (!catPanel || !resList) return;
-
-  var active = 'all';
-
-  (window.RESOURCE_CATEGORIES || []).forEach(function (cat) {
-    var count = cat.slug === 'all' ? window.RESOURCES.length
-      : window.RESOURCES.filter(function(r){ return r.category === cat.slug; }).length;
-    var btn = document.createElement('button');
-    btn.className    = 'category-btn' + (cat.slug === 'all' ? ' active' : '');
-    btn.dataset.slug = cat.slug;
-    btn.innerHTML    = cat.label + '<span class="cat-count">' + count + '</span>';
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.category-btn').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      active = cat.slug;
-      render(cat.slug);
-    });
-    catPanel.appendChild(btn);
-  });
-
-  function render(slug) {
-    var items = slug === 'all' ? window.RESOURCES
-      : window.RESOURCES.filter(function(r){ return r.category === slug; });
-    resList.innerHTML = items.map(window.renderResourceRow).join('');
-  }
-
-  render('all');
+  if (window.renderResources) window.renderResources();
 });
 </script>
 </body>

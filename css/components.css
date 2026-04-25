@@ -370,6 +370,36 @@
 }
 .resource-dl-btn:hover { background: var(--accent); color: var(--text-head); text-decoration: none; }
 
+/* ── Resource link cards (simple) ───────────────────────── */
+.resource-link-card {
+  display: block;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-lo);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.resource-link-card:last-child { border-bottom: none; }
+.resource-link-card:hover { background: var(--surface); text-decoration: none; }
+.rlc-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-head);
+  margin-bottom: 3px;
+}
+.rlc-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.rlc-url {
+  font-size: 11px;
+  color: var(--link);
+  font-family: 'Courier New', monospace;
+}
+.resource-link-card:hover .rlc-url { color: var(--link-hover); }
+
 /* ── Empty state ─────────────────────────────────────────── */
 .empty-state {
   padding: 40px 18px;
@@ -381,15 +411,37 @@
 
 /* ── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 680px) {
+  /* Posts */
   .post-full { padding: 16px 14px; }
   .post-title-head { font-size: 15px; }
-  .post-content { font-size: 13px; }
-  .post-content pre { font-size: 11.5px; padding: 12px; }
-  .accordion-toggle { padding: 12px 14px; min-height: 60px; }
+  .post-content { font-size: 13px; line-height: 1.7; }
+  .post-content pre {
+    font-size: 11px;
+    padding: 12px;
+    overflow-x: auto;
+    max-width: calc(100vw - 28px);
+    -webkit-overflow-scrolling: touch;
+  }
+  .post-content code { font-size: 11px; word-break: break-word; }
+  .post-content img { max-width: 100%; height: auto; }
+  .post-content table { display: block; overflow-x: auto; max-width: 100%; }
+
+  /* Accordion */
+  .accordion-toggle { padding: 12px 14px; min-height: 56px; }
+  .accordion-body { padding: 0 14px 14px; }
+
+  /* Project cards */
   .proj-text-card { padding: 14px; }
   .ptc-desc { font-size: 12px; }
+
+  /* Project page stats */
+  .proj-stats { flex-direction: column; }
+  .proj-stat { border-right: none; border-bottom: 1px solid var(--border-lo); }
+  .proj-stat:last-child { border-bottom: none; }
+
+  /* About */
   .profile-section { flex-direction: column; gap: 12px; }
-  .resource-row { padding: 12px 14px; }
-  .proj-stats { flex-wrap: wrap; }
-  .proj-stat { border-bottom: 1px solid var(--border-lo); border-right: 1px solid var(--border); min-width: 45%; }
+
+  /* Resources */
+  .resource-link-card { padding: 14px; }
 }

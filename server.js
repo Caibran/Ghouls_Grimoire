@@ -101,15 +101,16 @@ function scanPosts() {
     files.forEach(file => {
       try {
         const raw          = fs.readFileSync(path.join(projDir, file), 'utf8');
-        const { meta }     = parseFrontmatter(raw);
+        const { meta, body } = parseFrontmatter(raw);
         results.push({
           project,
           filename: file,
           path:     project + '/' + file,
-          title:    meta.title   || file.replace(/\.md$/, ''),
-          date:     meta.date    || '',
+          title:    meta.title        || file.replace(/\.md$/, ''),
+          date:     meta.date         || '',
           projectLabel: meta.projectLabel || project,
-          tags:     meta.tags    || []
+          tags:     meta.tags         || [],
+          md:       body
         });
       } catch (e) { /* skip unreadable files */ }
     });
